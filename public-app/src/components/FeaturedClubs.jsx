@@ -34,11 +34,11 @@ const clubs = [
 
 export default function FeaturedClubs() {
   return (
-    <section className="py-24 bg-gray-50">
+    <section className="py-24 bg-cream border-t border-charcoal/10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 mb-4">Shop by Club</h2>
-          <p className="text-lg text-gray-500 max-w-2xl mx-auto">
+          <h2 className="text-3xl md:text-4xl font-heading font-extrabold uppercase tracking-wider text-charcoal mb-4">Shop by Club</h2>
+          <p className="text-base text-charcoal/60 max-w-2xl mx-auto font-sans">
             Find the latest kits from Europe's most prestigious football clubs.
           </p>
         </div>
@@ -48,19 +48,19 @@ export default function FeaturedClubs() {
             <Link 
               key={club.id} 
               to={`/jerseys?club=${encodeURIComponent(club.id)}`}
-              className="group relative h-64 rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2"
+              className="group relative h-64 rounded-none overflow-hidden border border-charcoal/15 hover:border-charcoal transition-all duration-300 transform hover:-translate-y-1"
             >
               {/* Background Image */}
               <div 
-                className="absolute inset-0 bg-cover bg-center group-hover:scale-110 transition-transform duration-700 ease-out" 
+                className="absolute inset-0 bg-cover bg-center group-hover:scale-105 transition-transform duration-700 ease-out" 
                 style={{ backgroundImage: `url(${club.bgImage})` }}
               />
               {/* Gradient Overlay */}
-              <div className={`absolute inset-0 bg-gradient-to-t ${club.color} group-hover:opacity-90 transition-opacity duration-300`} />
+              <div className={`absolute inset-0 bg-gradient-to-t ${club.color} opacity-80 group-hover:opacity-85 transition-opacity duration-300`} />
               
               {/* Content */}
               <div className="absolute inset-0 p-6 flex flex-col items-center justify-center text-center z-10">
-                <h3 className="text-2xl font-extrabold text-white tracking-wide group-hover:text-yellow-400 transition-all duration-300 transform group-hover:scale-105">
+                <h3 className="font-heading text-2xl font-extrabold uppercase text-white tracking-wider group-hover:text-accent transition-all duration-300">
                   {club.name}
                 </h3>
               </div>

@@ -23,11 +23,11 @@ const tabs = [
 
 export default function CategoryTabs({ activeCategory, setActiveCategory }) {
   return (
-    <div className="w-full bg-gray-50 pt-12">
+    <div className="w-full bg-cream pt-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-10">
-          <h2 className="text-2xl md:text-3xl font-extrabold text-gray-900 mb-2">Shop by Category</h2>
-          <p className="text-sm text-gray-500 max-w-xl mx-auto">
+        <div className="text-center mb-12">
+          <h2 className="text-3xl font-heading font-extrabold uppercase tracking-wider text-charcoal mb-2">Shop by Category</h2>
+          <p className="text-sm text-charcoal/60 max-w-xl mx-auto font-sans">
             Select a category to filter the featured jerseys below.
           </p>
         </div>
@@ -40,10 +40,10 @@ export default function CategoryTabs({ activeCategory, setActiveCategory }) {
                 key={tab.id}
                 type="button"
                 onClick={() => setActiveCategory(tab.id)}
-                className={`group relative h-48 rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-500 transform hover:-translate-y-1 w-full text-left outline-none ${
+                className={`group relative h-48 rounded-none overflow-hidden border transition-all duration-300 transform hover:-translate-y-1 w-full text-left outline-none ${
                   isActive 
-                    ? 'ring-4 ring-yellow-400 shadow-yellow-400/20' 
-                    : 'ring-2 ring-transparent'
+                    ? 'border-charcoal ring-1 ring-charcoal' 
+                    : 'border-charcoal/15 hover:border-charcoal/40'
                 }`}
               >
                 {/* Background Image */}
@@ -53,17 +53,17 @@ export default function CategoryTabs({ activeCategory, setActiveCategory }) {
                 />
                 
                 {/* Colored Overlay */}
-                <div className={`absolute inset-0 bg-gradient-to-t ${tab.color} opacity-80 group-hover:opacity-90 transition-opacity duration-300`} />
+                <div className={`absolute inset-0 bg-gradient-to-t ${tab.color} opacity-80 group-hover:opacity-85 transition-opacity duration-300`} />
                 
                 {/* Floating Content */}
                 <div className="absolute inset-0 p-6 flex flex-col items-center justify-center text-center z-10">
-                  <h3 className={`text-xl md:text-2xl font-black text-white tracking-wide transition-all duration-300 ${
-                    isActive ? 'text-yellow-300 scale-105' : 'group-hover:text-yellow-400'
+                  <h3 className={`font-heading text-2xl font-black uppercase tracking-wider text-white transition-all duration-300 ${
+                    isActive ? 'text-accent' : 'group-hover:text-accent'
                   }`}>
                     {tab.label}
                   </h3>
                   {isActive && (
-                    <span className="mt-2 bg-yellow-400 text-yellow-950 text-xs font-extrabold px-3 py-1 rounded-full uppercase tracking-wider animate-pulse">
+                    <span className="mt-2 bg-accent text-charcoal text-[10px] font-black px-3 py-1 rounded-none uppercase tracking-widest animate-pulse border border-charcoal/20">
                       Selected
                     </span>
                   )}

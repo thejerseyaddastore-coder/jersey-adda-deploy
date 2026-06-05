@@ -13,8 +13,8 @@ export default function BrandLogo({ className = '', showWordmark = true, compact
       />
       {showWordmark ? (
         <div className="hidden sm:block">
-          <h1 className={`text-xl font-bold leading-tight ${titleClass}`}>Jersey Adda</h1>
-          {!compact ? <p className={`text-xs font-medium tracking-wide uppercase ${subtitleClass}`}>Premium Store</p> : null}
+          <h1 className={`text-xl font-heading font-extrabold uppercase tracking-wider leading-tight ${titleClass}`}>Jersey Adda</h1>
+          {!compact ? <p className={`text-[10px] font-sans font-bold tracking-widest uppercase ${subtitleClass}`}>Premium Store</p> : null}
         </div>
       ) : null}
     </div>

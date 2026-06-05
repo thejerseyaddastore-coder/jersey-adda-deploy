@@ -27,55 +27,60 @@ export default function JerseyCard({ jersey }) {
   };
 
   return (
-    <article className="group bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col h-full relative">
+    <article className="group bg-white rounded-none border border-charcoal/10 hover:border-charcoal transition-all duration-300 overflow-hidden flex flex-col h-full relative">
       <Link to={`/jerseys/${jerseySlug}`} className="block">
-        <div className="relative overflow-hidden h-64">
+        <div className="relative overflow-hidden h-72 bg-cream">
           {images.map((imgUrl, index) => (
             <img
               key={imgUrl}
               src={imgUrl}
               alt={jersey.name}
-              className={`absolute inset-0 w-full h-full object-cover transform group-hover:scale-110 transition-all duration-700 ease-in-out ${
+              className={`absolute inset-0 w-full h-full object-cover transform group-hover:scale-105 transition-all duration-700 ease-in-out ${
                 index === currentImageIndex ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'
               }`}
             />
           ))}
+          
           {images.length > 1 && (
             <>
-              <button 
-                type="button"
+              {/* Left interactive click zone */}
+              <div 
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
                   setCurrentImageIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
                 }}
-                className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-gray-800 p-1.5 rounded-full shadow hover:scale-110 active:scale-95 opacity-0 group-hover:opacity-100 transition-all duration-300 z-20"
-                aria-label="Previous image"
+                className="absolute left-0 top-0 bottom-0 w-1/2 cursor-w-resize z-20 flex items-center justify-start pl-2 group/btn"
               >
-                <ChevronLeft className="w-4 h-4" />
-              </button>
-              <button 
-                type="button"
+                <span className="bg-charcoal/80 hover:bg-accent text-white hover:text-charcoal p-1.5 rounded-none opacity-0 group-hover/btn:opacity-100 group-hover:opacity-40 transition-all duration-200 shadow-sm">
+                  <ChevronLeft className="w-4 h-4" />
+                </span>
+              </div>
+              
+              {/* Right interactive click zone */}
+              <div 
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
                   setCurrentImageIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1));
                 }}
-                className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-gray-800 p-1.5 rounded-full shadow hover:scale-110 active:scale-95 opacity-0 group-hover:opacity-100 transition-all duration-300 z-20"
-                aria-label="Next image"
+                className="absolute right-0 top-0 bottom-0 w-1/2 cursor-e-resize z-20 flex items-center justify-end pr-2 group/btn"
               >
-                <ChevronRight className="w-4 h-4" />
-              </button>
+                <span className="bg-charcoal/80 hover:bg-accent text-white hover:text-charcoal p-1.5 rounded-none opacity-0 group-hover/btn:opacity-100 group-hover:opacity-40 transition-all duration-200 shadow-sm">
+                  <ChevronRight className="w-4 h-4" />
+                </span>
+              </div>
             </>
           )}
+
           <div className="absolute top-2 right-2 flex flex-col space-y-1 z-10">
             {jersey.version && (
-              <span className="bg-yellow-400 text-yellow-900 text-xs font-semibold px-2 py-1 rounded-full">
+              <span className="bg-charcoal text-white text-[10px] font-heading font-bold uppercase tracking-wider px-2 py-0.5 rounded-none border border-white/10">
                 {jersey.version}
               </span>
             )}
             {jersey.sleeve && (
-              <span className="bg-blue-400 text-blue-900 text-xs font-semibold px-2 py-1 rounded-full">
+              <span className="bg-accent text-charcoal text-[10px] font-heading font-bold uppercase tracking-wider px-2 py-0.5 rounded-none border border-charcoal/10">
                 {jersey.sleeve}
               </span>
             )}
@@ -84,23 +89,23 @@ export default function JerseyCard({ jersey }) {
       </Link>
 
       <div className="p-4 flex flex-col flex-grow">
-        <h3 className="text-lg font-semibold text-gray-800 truncate group-hover:text-blue-600 transition-colors">
+        <h3 className="font-heading text-base font-extrabold uppercase tracking-wider text-charcoal truncate mb-0.5 group-hover:text-charcoal/70 transition-colors">
           <Link to={`/jerseys/${jerseySlug}`}>{jersey.name}</Link>
         </h3>
-        <p className="text-sm text-gray-500">{jersey.team_name}</p>
-        <p className="text-xl font-bold text-gray-900 my-2">
+        <p className="font-sans text-xs text-charcoal/50 uppercase tracking-widest font-semibold mb-2">{jersey.team_name}</p>
+        <p className="font-heading text-lg font-black text-charcoal mb-4">
           {formatCurrency(jersey.price)}
         </p>
 
         <div className="mt-auto">
-          <div className="mb-2">
-            <span className="text-sm font-medium text-gray-600">Sizes:</span>
-            <div className="flex flex-wrap gap-2 mt-1">
+          <div className="mb-1">
+            <span className="font-heading text-[10px] font-bold uppercase tracking-widest text-charcoal/50">Available Sizes:</span>
+            <div className="flex flex-wrap gap-1.5 mt-1.5">
               {jersey.available_sizes?.map((size) => (
                 <button
                   key={size}
                   onClick={() => handleAddToCart(size)}
-                  className="w-8 h-8 border rounded-md text-xs font-semibold hover:bg-gray-100 transition-colors"
+                  className="w-8 h-8 border border-charcoal/15 rounded-none text-[11px] font-black text-charcoal hover:bg-accent hover:border-charcoal/40 transition-colors duration-200 flex items-center justify-center"
                 >
                   {size}
                 </button>

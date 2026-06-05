@@ -4,17 +4,28 @@
 
 @layer base {
   body {
-    @apply bg-gray-50 text-gray-900 antialiased;
+    @apply bg-cream text-charcoal antialiased selection:bg-accent selection:text-charcoal;
   }
 }
 
 @layer components {
   .btn-primary {
-    @apply inline-flex items-center justify-center rounded-full bg-brand-700 px-6 py-3 text-sm font-semibold text-white shadow-sm hover:bg-brand-800 transition-colors duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-700;
+    @apply inline-flex items-center justify-center rounded-none bg-charcoal px-6 py-3 text-sm font-bold uppercase tracking-wider text-white border border-charcoal transition-all duration-300 hover:bg-accent hover:text-charcoal hover:scale-[1.01] active:scale-[0.99] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-charcoal;
   }
   
   .btn-secondary {
-    @apply inline-flex items-center justify-center rounded-full bg-white px-6 py-3 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 transition-colors duration-200;
+    @apply inline-flex items-center justify-center rounded-none bg-transparent px-6 py-3 text-sm font-bold uppercase tracking-wider text-charcoal border border-charcoal transition-all duration-300 hover:bg-charcoal hover:text-white hover:scale-[1.01] active:scale-[0.99];
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 

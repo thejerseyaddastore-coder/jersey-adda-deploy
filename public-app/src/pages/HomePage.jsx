@@ -95,7 +95,7 @@ export default function HomePage() {
         teams={teams}
       />
 
-      <div className="bg-gray-50 pb-24">
+      <div className="bg-cream pb-24">
         {/* Animated Tabs */}
         <CategoryTabs 
           activeCategory={activeCategory} 
@@ -106,26 +106,26 @@ export default function HomePage() {
         <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-10">
             <div>
-              <h2 className="text-3xl font-extrabold text-gray-900">Most Demanded Jerseys</h2>
-              <p className="mt-2 text-gray-500">Top picks loved by football fans</p>
+              <h2 className="text-3xl font-heading font-extrabold uppercase tracking-wider text-charcoal">Most Demanded Jerseys</h2>
+              <p className="mt-2 text-sm text-charcoal/60">Top picks loved by football fans</p>
             </div>
-            <div className="text-sm font-medium text-brand-600 bg-brand-50 px-4 py-2 rounded-full">
+            <div className="text-xs font-heading font-black text-charcoal bg-accent px-4 py-2 rounded-none border border-charcoal/10 uppercase tracking-widest">
               Showing {displayedJerseys.length} {displayedJerseys.length === 1 ? 'jersey' : 'jerseys'}
             </div>
           </div>
 
           {loading ? (
             <div className="flex justify-center items-center h-64">
-              <div className="w-10 h-10 border-4 border-brand-200 border-t-brand-600 rounded-full animate-spin"></div>
+              <div className="w-10 h-10 border-4 border-charcoal/20 border-t-charcoal rounded-full animate-spin"></div>
             </div>
           ) : error ? (
-            <div className="bg-red-50 text-red-600 p-6 rounded-xl border border-red-100 text-center">
+            <div className="bg-red-50 text-red-600 p-6 rounded-none border border-red-100 text-center font-sans">
               {error}
             </div>
           ) : displayedJerseys.length === 0 ? (
-            <div className="bg-white p-12 rounded-2xl border border-gray-100 text-center shadow-sm">
-              <h3 className="text-xl font-bold text-gray-900 mb-2">No jerseys found</h3>
-              <p className="text-gray-500">Try adjusting your filters or search criteria.</p>
+            <div className="bg-white p-12 rounded-none border border-charcoal/10 text-center shadow-none">
+              <h3 className="font-heading text-xl font-bold uppercase tracking-wider text-charcoal mb-2">No jerseys found</h3>
+              <p className="text-sm text-charcoal/50 font-sans">Try adjusting your filters or search criteria.</p>
               <button 
                 onClick={() => {
                   setSearch(''); setTeam('All'); setVersion('All'); setSleeve('All');

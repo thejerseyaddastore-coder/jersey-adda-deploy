@@ -19,10 +19,14 @@ export default {
           800: '#115e59',
           900: '#134e4a',
           950: '#042f2e',
-        }
+        },
+        cream: '#fbfaf8',
+        charcoal: '#171717',
+        accent: '#cdff65',
       },
       fontFamily: {
-        sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        sans: ['Lato', 'sans-serif'],
+        heading: ['Barlow', 'sans-serif'],
       }
     },
   },

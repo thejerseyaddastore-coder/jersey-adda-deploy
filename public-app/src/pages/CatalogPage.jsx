@@ -69,20 +69,20 @@ export default function CatalogPage() {
 
   return (
     <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-8 mb-10">
-        <h1 className="text-3xl md:text-4xl font-extrabold text-gray-900 mb-4">Complete Catalog</h1>
-        <p className="text-gray-500 mb-8 max-w-3xl text-lg">
+      <div className="bg-white rounded-none shadow-none border border-charcoal/10 p-6 sm:p-8 mb-10">
+        <h1 className="font-heading text-3xl md:text-4xl font-extrabold uppercase tracking-wider text-charcoal mb-3">Complete Catalog</h1>
+        <p className="text-charcoal/60 mb-8 max-w-3xl text-sm font-sans leading-relaxed">
           Browse our entire collection. Search by team, player, or browse through all available options to find your perfect match.
         </p>
 
         <div className="flex flex-col md:flex-row gap-4">
           <div className="relative flex-grow">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
-              <Search className="w-5 h-5" />
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-charcoal/40">
+              <Search className="w-4 h-4" />
             </div>
             <input
               type="text"
-              className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-xl leading-5 bg-gray-50 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:bg-white transition-all"
+              className="block w-full pl-9 pr-3 py-3 border border-charcoal/20 bg-cream rounded-none leading-5 placeholder-charcoal/40 focus:outline-none focus:border-charcoal transition-all text-sm font-sans"
               placeholder="Search jerseys..."
               value={search}
               onChange={(event) => setSearch(event.target.value)}
@@ -90,13 +90,13 @@ export default function CatalogPage() {
           </div>
 
           <div className="relative md:w-64">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
-              <Filter className="w-5 h-5" />
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-charcoal/40">
+              <Filter className="w-4 h-4" />
             </div>
             <select 
               value={team} 
               onChange={(event) => setTeam(event.target.value)}
-              className="block w-full pl-10 pr-8 py-3 border border-gray-300 rounded-xl leading-5 bg-white focus:outline-none focus:ring-2 focus:ring-brand-500 transition-all appearance-none cursor-pointer"
+              className="block w-full pl-9 pr-8 py-3 border border-charcoal/20 bg-white rounded-none leading-5 font-heading text-xs font-bold uppercase tracking-wider focus:outline-none focus:border-charcoal transition-all appearance-none cursor-pointer"
             >
               {teams.map((option) => (
                 <option key={option} value={option}>
@@ -109,17 +109,17 @@ export default function CatalogPage() {
       </div>
 
       <div className="mb-6 flex justify-between items-end">
-        <h2 className="text-2xl font-bold text-gray-900">
+        <h2 className="font-heading text-xl font-extrabold uppercase tracking-wider text-charcoal">
           {loading ? 'Loading jerseys...' : `${filtered.length} jerseys available`}
         </h2>
       </div>
 
-      {error && <p className="bg-red-50 text-red-600 p-4 rounded-lg">{error}</p>}
+      {error && <p className="bg-red-50 text-red-600 p-4 rounded-none border border-red-150 font-sans text-sm">{error}</p>}
 
       {!loading && !error && filtered.length === 0 && (
-        <div className="text-center py-20 bg-white rounded-2xl border border-gray-100 shadow-sm">
-          <h3 className="text-xl font-bold text-gray-900 mb-2">No matches found</h3>
-          <p className="text-gray-500 mb-6">Try adjusting your search or filters.</p>
+        <div className="text-center py-20 bg-white rounded-none border border-charcoal/10 shadow-none">
+          <h3 className="font-heading text-xl font-bold uppercase tracking-wider text-charcoal mb-2">No matches found</h3>
+          <p className="text-sm text-charcoal/50 mb-6 font-sans">Try adjusting your search or filters.</p>
           <button onClick={() => { setSearch(''); setTeam('All'); }} className="btn-primary">
             Clear Filters
           </button>

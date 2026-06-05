@@ -112,12 +112,12 @@ export default function JerseyDetailPage() {
   const whatsappUrl = `https://wa.me/${whatsappNumber.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(message)}`;
 
   return (
-    <main className="bg-white">
+    <main className="bg-cream">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         
         {/* Breadcrumb / Back */}
         <nav className="mb-8">
-          <Link to="/jerseys" className="inline-flex items-center text-sm font-medium text-gray-500 hover:text-brand-600 transition-colors">
+          <Link to="/jerseys" className="inline-flex items-center font-heading text-xs font-bold uppercase tracking-widest text-charcoal/50 hover:text-charcoal transition-colors">
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Catalog
           </Link>
@@ -132,8 +132,8 @@ export default function JerseyDetailPage() {
                 <button
                   key={`${image}-${index}`}
                   onClick={() => setActiveImage(index)}
-                  className={`relative h-24 w-24 shrink-0 rounded-xl overflow-hidden bg-gray-50 flex items-center justify-center border-2 transition-all ${
-                    activeImage === index ? 'border-brand-600 ring-2 ring-brand-600/20' : 'border-transparent hover:border-gray-300'
+                  className={`relative h-24 w-24 shrink-0 rounded-none overflow-hidden bg-white flex items-center justify-center border transition-all ${
+                    activeImage === index ? 'border-charcoal ring-1 ring-charcoal' : 'border-charcoal/10 hover:border-charcoal/40'
                   }`}
                 >
                   <img src={image} alt={`Thumbnail ${index + 1}`} className="object-cover w-full h-full" />
@@ -142,35 +142,40 @@ export default function JerseyDetailPage() {
             </div>
 
             {/* Main Image */}
-            <div className="relative flex-grow bg-gray-50 rounded-3xl overflow-hidden aspect-[4/5] border border-gray-100 group">
+            <div className="relative flex-grow bg-white rounded-none overflow-hidden aspect-[4/5] border border-charcoal/10 group">
               <img 
                 src={images[activeImage]} 
                 alt={jersey.name} 
                 className="w-full h-full object-cover object-center transition-all duration-500 ease-in-out"
               />
+              
               {images.length > 1 && (
                 <>
-                  <button 
-                    type="button"
+                  {/* Left Click Zone */}
+                  <div 
                     onClick={() => setActiveImage((prev) => (prev === 0 ? images.length - 1 : prev - 1))}
-                    className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-gray-800 p-2.5 rounded-full shadow-md hover:scale-110 active:scale-95 transition-all z-10 duration-200"
-                    aria-label="Previous image"
+                    className="absolute left-0 top-0 bottom-0 w-1/2 cursor-w-resize z-20 flex items-center justify-start pl-4 group/btn"
                   >
-                    <ChevronLeft className="w-6 h-6" />
-                  </button>
-                  <button 
-                    type="button"
+                    <span className="bg-charcoal/90 hover:bg-accent text-white hover:text-charcoal p-3 rounded-none opacity-0 group-hover/btn:opacity-100 transition-all duration-200 shadow-md">
+                      <ChevronLeft className="w-6 h-6" />
+                    </span>
+                  </div>
+
+                  {/* Right Click Zone */}
+                  <div 
                     onClick={() => setActiveImage((prev) => (prev === images.length - 1 ? 0 : prev + 1))}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-gray-800 p-2.5 rounded-full shadow-md hover:scale-110 active:scale-95 transition-all z-10 duration-200"
-                    aria-label="Next image"
+                    className="absolute right-0 top-0 bottom-0 w-1/2 cursor-e-resize z-20 flex items-center justify-end pr-4 group/btn"
                   >
-                    <ChevronRight className="w-6 h-6" />
-                  </button>
+                    <span className="bg-charcoal/90 hover:bg-accent text-white hover:text-charcoal p-3 rounded-none opacity-0 group-hover/btn:opacity-100 transition-all duration-200 shadow-md">
+                      <ChevronRight className="w-6 h-6" />
+                    </span>
+                  </div>
                 </>
               )}
+              
               {jersey.version_type && (
                 <div className="absolute top-6 left-6">
-                  <span className="px-4 py-1.5 text-sm font-bold bg-white/90 backdrop-blur-sm text-gray-900 rounded-full shadow-md uppercase tracking-wider">
+                  <span className="px-4 py-1.5 text-xs font-heading font-extrabold bg-charcoal text-white rounded-none border border-white/10 shadow-sm uppercase tracking-widest">
                     {jersey.version_type} VERSION
                   </span>
                 </div>
@@ -181,59 +186,59 @@ export default function JerseyDetailPage() {
           {/* Product Info */}
           <div className="mt-10 lg:mt-0 px-2 sm:px-0 flex flex-col h-full">
             <div className="mb-6">
-              <h2 className="text-sm font-bold tracking-widest text-brand-600 uppercase mb-2">{jersey.team_name}</h2>
-              <h1 className="text-3xl sm:text-4xl font-extrabold text-gray-900 tracking-tight mb-4">{jersey.name}</h1>
+              <h2 className="font-heading text-xs font-bold tracking-widest text-charcoal/50 uppercase mb-1">{jersey.team_name}</h2>
+              <h1 className="font-heading text-3xl sm:text-4xl font-extrabold text-charcoal tracking-wider uppercase mb-3">{jersey.name}</h1>
               <div className="flex items-center">
-                <p className="text-3xl font-black text-gray-900">{formatCurrency(jersey.price || 0)}</p>
+                <p className="font-heading text-3xl font-black text-charcoal">{formatCurrency(jersey.price || 0)}</p>
               </div>
             </div>
 
-            <div className="prose prose-sm sm:prose text-gray-500 mb-8">
-              <p className="text-base leading-relaxed">{jersey.description || 'Experience the game with this premium quality football jersey, designed for true fans and players alike.'}</p>
+            <div className="text-charcoal/70 mb-8 font-sans text-sm leading-relaxed max-w-xl">
+              <p>{jersey.description || 'Experience the game with this premium quality football jersey, designed for true fans and players alike.'}</p>
             </div>
 
             <div className="grid grid-cols-2 gap-4 mb-8">
-              <div className="bg-gray-50 p-4 rounded-xl border border-gray-100">
-                <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold mb-1">League</p>
-                <p className="font-bold text-gray-900">{jersey.league_name || 'International'}</p>
+              <div className="bg-white p-4 rounded-none border border-charcoal/10">
+                <p className="font-heading text-[10px] text-charcoal/40 uppercase tracking-widest font-extrabold mb-1">League</p>
+                <p className="font-heading text-sm font-bold uppercase tracking-wider text-charcoal">{jersey.league_name || 'International'}</p>
               </div>
-              <div className="bg-gray-50 p-4 rounded-xl border border-gray-100">
-                <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold mb-1">Sleeve</p>
-                <p className="font-bold text-gray-900">{jersey.sleeve_type === 'HALF' ? 'Half Sleeve' : 'Full Sleeve'}</p>
+              <div className="bg-white p-4 rounded-none border border-charcoal/10">
+                <p className="font-heading text-[10px] text-charcoal/40 uppercase tracking-widest font-extrabold mb-1">Sleeve</p>
+                <p className="font-heading text-sm font-bold uppercase tracking-wider text-charcoal">{jersey.sleeve_type === 'HALF' ? 'Half Sleeve' : 'Full Sleeve'}</p>
               </div>
-              <div className="bg-gray-50 p-4 rounded-xl border border-gray-100">
-                <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold mb-1">Version</p>
-                <p className="font-bold text-gray-900">{jersey.version_type || 'Standard'}</p>
+              <div className="bg-white p-4 rounded-none border border-charcoal/10">
+                <p className="font-heading text-[10px] text-charcoal/40 uppercase tracking-widest font-extrabold mb-1">Version</p>
+                <p className="font-heading text-sm font-bold uppercase tracking-wider text-charcoal">{jersey.version_type || 'Standard'}</p>
               </div>
-              <div className="bg-gray-50 p-4 rounded-xl border border-gray-100">
-                <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold mb-1">Shorts</p>
-                <p className="font-bold text-gray-900">{jersey.has_shorts ? 'Included' : 'Not Included'}</p>
+              <div className="bg-white p-4 rounded-none border border-charcoal/10">
+                <p className="font-heading text-[10px] text-charcoal/40 uppercase tracking-widest font-extrabold mb-1">Shorts</p>
+                <p className="font-heading text-sm font-bold uppercase tracking-wider text-charcoal">{jersey.has_shorts ? 'Included' : 'Not Included'}</p>
               </div>
             </div>
 
-            <div className="mb-8 rounded-2xl border border-gray-200 bg-gray-50 p-4 sm:p-6">
+            <div className="mb-8 rounded-none border border-charcoal/15 bg-white p-4 sm:p-6">
               <div className="flex items-center justify-between gap-3 mb-4">
-                <h3 className="text-sm font-bold tracking-widest text-brand-600 uppercase">Select Size</h3>
+                <h3 className="font-heading text-xs font-bold tracking-widest text-charcoal/50 uppercase">Select Size</h3>
                 <button
                   type="button"
                   onClick={() => setShowSizeChart(true)}
-                  className="inline-flex items-center gap-2 text-sm font-semibold text-brand-600 hover:text-brand-700"
+                  className="inline-flex items-center gap-1.5 font-heading text-xs font-extrabold uppercase tracking-widest text-charcoal/70 hover:text-charcoal hover:underline"
                 >
-                  <Ruler className="h-4 w-4" />
+                  <Ruler className="h-3.5 w-3.5" />
                   View Size Chart
                 </button>
               </div>
 
-              <div className="flex flex-wrap gap-3">
+              <div className="flex flex-wrap gap-2.5">
                 {sizes.map((size) => (
                   <button
                     key={size}
                     type="button"
                     onClick={() => setSelectedSize(size)}
-                    className={`min-w-14 rounded-full border px-4 py-2 text-sm font-bold transition-all ${
+                    className={`min-w-12 rounded-none border px-4 py-2 font-heading text-xs font-black transition-all duration-200 ${
                       selectedSize === size
-                        ? 'border-brand-600 bg-brand-600 text-white'
-                        : 'border-gray-300 bg-white text-gray-800 hover:border-brand-400'
+                        ? 'border-charcoal bg-charcoal text-white'
+                        : 'border-charcoal/15 bg-white text-charcoal hover:border-charcoal hover:bg-accent'
                     }`}
                   >
                     {size}
@@ -241,49 +246,49 @@ export default function JerseyDetailPage() {
                 ))}
               </div>
 
-              <div className="mt-4 flex flex-col sm:flex-row gap-3">
+              <div className="mt-6 flex flex-col sm:flex-row gap-3">
                 <button
                   type="button"
                   onClick={handleAddToCart}
-                  className="inline-flex items-center justify-center gap-2 rounded-2xl bg-gray-950 px-5 py-4 font-bold text-white transition hover:bg-gray-800"
+                  className="w-full sm:flex-1 inline-flex items-center justify-center gap-2 rounded-none bg-charcoal px-5 py-4 font-heading text-xs font-bold uppercase tracking-wider text-white transition hover:bg-accent hover:text-charcoal border border-charcoal"
                 >
-                  <ShoppingBag className="h-5 w-5" />
+                  <ShoppingBag className="h-4.5 w-4.5" />
                   Add to Cart
                 </button>
                 <button
                   type="button"
                   onClick={() => setShowSizeChart(true)}
-                  className="inline-flex items-center justify-center gap-2 rounded-2xl border border-gray-300 bg-white px-5 py-4 font-bold text-gray-800 transition hover:border-brand-500 hover:text-brand-600"
+                  className="w-full sm:flex-1 inline-flex items-center justify-center gap-2 rounded-none border border-charcoal/20 bg-white px-5 py-4 font-heading text-xs font-bold uppercase tracking-wider text-charcoal transition hover:border-charcoal hover:bg-accent"
                 >
-                  <Ruler className="h-5 w-5" />
-                  View Size Chart
+                  <Ruler className="h-4.5 w-4.5" />
+                  Size Guide
                 </button>
               </div>
             </div>
 
             {/* Actions */}
-            <div className="mt-auto pt-8 border-t border-gray-200">
+            <div className="mt-auto pt-8 border-t border-charcoal/10">
               <a 
                 href={whatsappUrl} 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="w-full flex items-center justify-center gap-3 bg-[#25D366] hover:bg-[#20bd5a] text-white px-8 py-5 rounded-2xl font-bold text-lg shadow-lg shadow-[#25D366]/20 transition-all transform hover:-translate-y-1"
+                className="w-full flex items-center justify-center gap-3 bg-[#25D366] hover:bg-[#20bd5a] text-white px-8 py-4.5 rounded-none font-heading font-extrabold uppercase tracking-wider text-base transition-all duration-300 hover:scale-[1.01]"
               >
-                <MessageCircle className="w-6 h-6" />
+                <MessageCircle className="w-5 h-5" />
                 Order via WhatsApp
               </a>
-              <p className="text-center text-sm text-gray-500 mt-4 flex items-center justify-center gap-2">
-                <Check className="w-4 h-4 text-green-500" /> Stock verified manually upon order.
+              <p className="text-center font-heading text-[10px] uppercase tracking-widest text-charcoal/40 mt-4 flex items-center justify-center gap-2">
+                <Check className="w-3.5 h-3.5 text-green-600" /> Stock verified manually upon order.
               </p>
             </div>
 
             {/* Trust Badges */}
-            <div className="grid grid-cols-2 gap-4 mt-8 pt-8 border-t border-gray-200">
-              <div className="flex items-center gap-3 text-sm font-medium text-gray-600">
-                <ShieldCheck className="w-5 h-5 text-brand-600" /> Premium Quality
+            <div className="grid grid-cols-2 gap-4 mt-8 pt-8 border-t border-charcoal/10">
+              <div className="flex items-center gap-2.5 font-heading text-xs font-bold uppercase tracking-widest text-charcoal/60">
+                <ShieldCheck className="w-4.5 h-4.5 text-charcoal/70" /> Premium Quality
               </div>
-              <div className="flex items-center gap-3 text-sm font-medium text-gray-600">
-                <Truck className="w-5 h-5 text-brand-600" /> Fast Delivery
+              <div className="flex items-center gap-2.5 font-heading text-xs font-bold uppercase tracking-widest text-charcoal/60">
+                <Truck className="w-4.5 h-4.5 text-charcoal/70" /> Fast Delivery
               </div>
             </div>
           </div>
