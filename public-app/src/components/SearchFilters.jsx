@@ -3,7 +3,7 @@ import { Search, Filter } from 'lucide-react';
 
 export default function SearchFilters({ search, setSearch, team, setTeam, version, setVersion, sleeve, setSleeve, teams }) {
   return (
-    <section className="bg-white border-b border-gray-200 sticky top-20 z-40 shadow-sm">
+    <section className="bg-white border-b border-gray-200 md:sticky md:top-20 z-40 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
         <div className="flex flex-col md:flex-row items-center justify-between gap-4">
           
@@ -31,7 +31,7 @@ export default function SearchFilters({ search, setSearch, team, setTeam, versio
             <select
               value={team}
               onChange={(e) => setTeam(e.target.value)}
-              className="block w-full md:w-auto py-2 pl-3 pr-8 border border-gray-300 bg-white rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-shadow appearance-none cursor-pointer"
+              className="block flex-1 min-w-[125px] md:flex-none md:w-auto py-2 pl-3 pr-8 border border-gray-300 bg-white rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-shadow appearance-none cursor-pointer"
             >
               {teams.map((t) => (
                 <option key={t} value={t}>{t === 'All' ? 'All Teams' : t}</option>
@@ -41,7 +41,7 @@ export default function SearchFilters({ search, setSearch, team, setTeam, versio
             <select
               value={version}
               onChange={(e) => setVersion(e.target.value)}
-              className="block w-full md:w-auto py-2 pl-3 pr-8 border border-gray-300 bg-white rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-shadow appearance-none cursor-pointer"
+              className="block flex-1 min-w-[125px] md:flex-none md:w-auto py-2 pl-3 pr-8 border border-gray-300 bg-white rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-shadow appearance-none cursor-pointer"
             >
               <option value="All">All Versions</option>
               <option value="PLAYER">Player Version</option>
@@ -51,7 +51,7 @@ export default function SearchFilters({ search, setSearch, team, setTeam, versio
             <select
               value={sleeve}
               onChange={(e) => setSleeve(e.target.value)}
-              className="block w-full md:w-auto py-2 pl-3 pr-8 border border-gray-300 bg-white rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-shadow appearance-none cursor-pointer"
+              className="block flex-1 min-w-[125px] md:flex-none md:w-auto py-2 pl-3 pr-8 border border-gray-300 bg-white rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-shadow appearance-none cursor-pointer"
             >
               <option value="All">All Sleeves</option>
               <option value="HALF">Half Sleeve</option>
