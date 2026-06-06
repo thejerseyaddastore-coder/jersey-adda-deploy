@@ -15,7 +15,7 @@ const defaultForm = {
   sleeve_type: 'HALF',
   version_type: 'PLAYER',
   featured_club: '',
-  available_sizes: 'XS,S,M,L,XL,2XL'
+  available_sizes: 'S,M,L,XL,2XL'
 };
 
 const featuredClubOptions = [
@@ -88,7 +88,7 @@ function mapJerseyToForm(jersey) {
     sleeve_type: jersey.sleeve_type || 'HALF',
     version_type: jersey.version_type || 'PLAYER',
     featured_club: jersey.featured_club || '',
-    available_sizes: Array.isArray(jersey.available_sizes) ? jersey.available_sizes.join(',') : 'XS,S,M,L,XL,2XL'
+    available_sizes: Array.isArray(jersey.available_sizes) ? jersey.available_sizes.join(',') : 'S,M,L,XL,2XL'
   };
 }
 
@@ -110,6 +110,7 @@ function buildQuery(filters) {
 export default function AdminDashboard({ adminPassword, onLogout, onOpenPublic }) {
   const [jerseys, setJerseys] = useState([]);
   const [selectedJerseyId, setSelectedJerseyId] = useState('');
+  const [activeTab, setActiveTab] = useState('catalog');
   const [form, setForm] = useState(defaultForm);
   const [files, setFiles] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -226,11 +227,12 @@ export default function AdminDashboard({ adminPassword, onLogout, onOpenPublic }
 
     try {
       const payload = createFormData(form, files);
+      const isNew = !selectedJersey;
       const response = selectedJersey
         ? await updateAdminJersey(adminPassword, selectedJersey.id, payload)
         : await createAdminJersey(adminPassword, payload);
 
-      setMessage(selectedJersey ? 'Jersey updated' : 'Jersey created');
+      setMessage(isNew ? 'Jersey created' : 'Jersey updated');
       const updatedJerseys = await listAdminJerseys(adminPassword, buildQuery(filters));
       setJerseys(updatedJerseys.data?.items || []);
 
@@ -238,6 +240,9 @@ export default function AdminDashboard({ adminPassword, onLogout, onOpenPublic }
         setSelectedJerseyId(response.data.id);
       }
       setFiles([]);
+      if (isNew) {
+        setActiveTab('catalog'); // Automatically switch to catalog tab on new jersey creation
+      }
     } catch (submitError) {
       setError(submitError.message || 'Failed to save jersey');
     } finally {
@@ -281,249 +286,420 @@ export default function AdminDashboard({ adminPassword, onLogout, onOpenPublic }
           <div className="admin-actions">
             <button type="button" className="action-button action-button--ghost" onClick={onOpenPublic}>Public site</button>
             <button type="button" className="action-button action-button--danger" onClick={onLogout}>Logout</button>
-            <button type="button" className="action-button" onClick={resetForm}>New jersey</button>
           </div>
         </div>
       </section>
 
-      <section className="admin-layout">
-        <aside className="panel admin-list">
-          <div className="section-head">
-            <div>
-              <p className="eyebrow">Filters</p>
-              <h2>Find jerseys faster</h2>
-            </div>
-          </div>
+      {/* Tabs */}
+      <div className="admin-tabs">
+        <button
+          type="button"
+          className={`admin-tab-btn ${activeTab === 'catalog' ? 'is-active' : ''}`}
+          onClick={() => {
+            setActiveTab('catalog');
+          }}
+        >
+          Catalog
+        </button>
+        <button
+          type="button"
+          className={`admin-tab-btn ${activeTab === 'new_jersey' ? 'is-active' : ''}`}
+          onClick={() => {
+            setActiveTab('new_jersey');
+            resetForm();
+          }}
+        >
+          New Jersey
+        </button>
+      </div>
 
-          <div className="admin-filter-grid">
-            <label className="search-box">
-              <span>Search</span>
-              <input value={filters.search} onChange={(event) => setFilters({ ...filters, search: event.target.value })} placeholder="Team, description, league..." />
-            </label>
-
-            <label className="search-box">
-              <span>Nation teams / clubs</span>
-              <select value={filters.scope} onChange={(event) => setFilters({ ...filters, scope: event.target.value })}>
-                <option value="ALL">All jerseys</option>
-                <option value="NATIONAL">National teams</option>
-                <option value="CLUBS">Clubs</option>
-              </select>
-            </label>
-
-            <label className="search-box">
-              <span>Shorts</span>
-              <select value={filters.shorts} onChange={(event) => setFilters({ ...filters, shorts: event.target.value })}>
-                <option value="ALL">All</option>
-                <option value="INCLUDED">Included</option>
-                <option value="NOT_INCLUDED">Not included</option>
-              </select>
-            </label>
-
-            <label className="search-box">
-              <span>Sleeve</span>
-              <select value={filters.sleeve} onChange={(event) => setFilters({ ...filters, sleeve: event.target.value })}>
-                <option value="ALL">All</option>
-                <option value="HALF">Half</option>
-                <option value="FULL">Full</option>
-              </select>
-            </label>
-
-            <label className="search-box">
-              <span>Version</span>
-              <select value={filters.version} onChange={(event) => setFilters({ ...filters, version: event.target.value })}>
-                <option value="ALL">All</option>
-                <option value="PLAYER">Player</option>
-                <option value="FAN">Fan</option>
-              </select>
-            </label>
-
-            <label className="search-box">
-              <span>Team</span>
-              <select value={filters.team} onChange={(event) => setFilters({ ...filters, team: event.target.value })}>
-                {teams.map((team) => (
-                  <option key={team} value={team}>{team}</option>
-                ))}
-              </select>
-            </label>
-          </div>
-
-          {error ? <p className="state state--error">{error}</p> : null}
-          {message ? <p className="state">{message}</p> : null}
-
-          <div className="section-head admin-list__header">
-            <div>
-              <p className="eyebrow">Results</p>
-              <h2>{loading ? 'Loading...' : `${filteredJerseys.length} saved jerseys`}</h2>
-            </div>
-          </div>
-
-          <div className="admin-list__items">
-            {filteredJerseys.map((jersey) => (
-              <button key={jersey.id} type="button" className={`admin-list__item ${selectedJerseyId === jersey.id ? 'is-active' : ''}`} onClick={() => setSelectedJerseyId(jersey.id)}>
-                <span>{jersey.name}</span>
-                <small>{jersey.team_name}</small>
-              </button>
-            ))}
-          </div>
-        </aside>
-
-        <section className="panel admin-form-panel">
-          <div className="section-head">
-            <div>
-              <p className="eyebrow">{selectedJersey ? 'Edit jersey' : 'New jersey'}</p>
-              <h2>{selectedJersey ? selectedJersey.name : 'Start a new product'}</h2>
-            </div>
-
-            {selectedJersey ? (
-              <button type="button" className="action-button action-button--danger" onClick={handleDelete}>Delete jersey</button>
-            ) : null}
-          </div>
-
-          <form className="admin-form" onSubmit={handleSubmit}>
-            <div className="admin-grid">
-              <label className="search-box"><span>Slug</span><input value={form.slug} onChange={(event) => setForm({ ...form, slug: event.target.value })} /></label>
-              <label className="search-box"><span>Name</span><input value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} /></label>
-              <label className="search-box"><span>Team</span><input value={form.team_name} onChange={(event) => setForm({ ...form, team_name: event.target.value })} /></label>
-              <label className="search-box"><span>League</span><input value={form.league_name} onChange={(event) => setForm({ ...form, league_name: event.target.value })} /></label>
-              <label className="search-box"><span>Price</span><input type="number" step="0.01" value={form.price} onChange={(event) => setForm({ ...form, price: event.target.value })} /></label>
-              <label className="search-box"><span>Featured club</span><select value={form.featured_club} onChange={(event) => setForm({ ...form, featured_club: event.target.value })}>{featuredClubOptions.map((option) => (<option key={option.value || 'none'} value={option.value}>{option.label}</option>))}</select></label>
-              <label className="search-box"><span>Sleeve</span><select value={form.sleeve_type} onChange={(event) => setForm({ ...form, sleeve_type: event.target.value })}><option value="HALF">HALF</option><option value="FULL">FULL</option></select></label>
-              <label className="search-box"><span>Version</span><select value={form.version_type} onChange={(event) => setForm({ ...form, version_type: event.target.value })}><option value="PLAYER">PLAYER</option><option value="FAN">FAN</option></select></label>
-              <label className="search-box"><span>National team</span><select value={toBooleanString(form.is_national_team)} onChange={(event) => setForm({ ...form, is_national_team: event.target.value === 'true' })}><option value="true">Yes</option><option value="false">No</option></select></label>
-              <label className="search-box"><span>Has shorts</span><select value={toBooleanString(form.has_shorts)} onChange={(event) => setForm({ ...form, has_shorts: event.target.value === 'true' })}><option value="true">Yes</option><option value="false">No</option></select></label>
-              <label className="search-box"><span>Available sizes</span><input value={form.available_sizes} onChange={(event) => setForm({ ...form, available_sizes: event.target.value })} placeholder="XS,S,M,L,XL,2XL (ZXL accepted)" /></label>
-            </div>
-
-            <label className="search-box admin-textarea">
-              <span>Description</span>
-              <textarea rows="5" value={form.description} onChange={(event) => setForm({ ...form, description: event.target.value })} />
-            </label>
-
-            <div className="search-box">
-              <span>Images (1-5)</span>
-              <div 
-                style={{
-                  border: '2px dashed var(--border)',
-                  borderRadius: '18px',
-                  padding: '24px',
-                  textAlign: 'center',
-                  background: 'var(--panel-strong)',
-                  cursor: 'pointer',
-                  position: 'relative',
-                  transition: 'all 0.2s ease',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  gap: '8px'
-                }}
-                onClick={() => document.getElementById('admin_file_input').click()}
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--accent)', marginBottom: '4px' }}>
-                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                  <polyline points="17 8 12 3 7 8"></polyline>
-                  <line x1="12" y1="3" x2="12" y2="15"></line>
-                </svg>
-                <span style={{ fontSize: '0.9rem', fontWeight: 'bold' }}>
-                  Tap to upload or take photos
-                </span>
-                <span style={{ fontSize: '0.8rem', color: 'var(--muted)' }}>
-                  Supports PNG, JPG, JPEG (Max 8MB per image)
-                </span>
-                <input
-                  id="admin_file_input"
-                  type="file"
-                  accept="image/*"
-                  multiple
-                  style={{ display: 'none' }}
-                  onChange={(event) => {
-                    const selected = Array.from(event.target.files || []);
-                    if (selected.length > 5) {
-                      setError('Maximum 5 images are allowed');
-                      setFiles(selected.slice(0, 5));
-                    } else {
-                      setError('');
-                      setFiles(selected);
-                    }
-                  }}
-                />
+      {activeTab === 'catalog' ? (
+        <section className="admin-layout">
+          <aside className="panel admin-list">
+            <div className="section-head">
+              <div>
+                <p className="eyebrow">Filters</p>
+                <h2>Find jerseys faster</h2>
               </div>
             </div>
 
-            {files.length > 0 && (
-              <div style={{ display: 'grid', gap: '8px', marginTop: '12px' }}>
-                <span style={{ fontSize: '0.85rem', fontWeight: 'bold', color: 'var(--accent)' }}>
-                  Selected Files for Upload ({files.length}):
-                </span>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                  {files.map((file, idx) => {
-                    const url = URL.createObjectURL(file);
-                    return (
-                      <div 
-                        key={`${file.name}-${idx}`} 
-                        style={{
-                          position: 'relative',
-                          width: '80px',
-                          height: '80px',
-                          borderRadius: '12px',
-                          overflow: 'hidden',
-                          border: '1px solid var(--border)'
-                        }}
-                      >
-                        <img src={url} alt={file.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setFiles(files.filter((_, i) => i !== idx));
-                          }}
-                          style={{
-                            position: 'absolute',
-                            top: '4px',
-                            right: '4px',
-                            background: 'rgba(0,0,0,0.6)',
-                            color: '#fff',
-                            border: 0,
-                            borderRadius: '50%',
-                            width: '20px',
-                            height: '20px',
-                            display: 'grid',
-                            placeItems: 'center',
-                            cursor: 'pointer',
-                            fontSize: '10px',
-                            lineHeight: 1
-                          }}
-                        >
-                          ✕
-                        </button>
-                      </div>
-                    );
-                  })}
+            <div className="admin-filter-grid">
+              <label className="search-box">
+                <span>Search</span>
+                <input value={filters.search} onChange={(event) => setFilters({ ...filters, search: event.target.value })} placeholder="Team, description, league..." />
+              </label>
+
+              <label className="search-box">
+                <span>Nation teams / clubs</span>
+                <select value={filters.scope} onChange={(event) => setFilters({ ...filters, scope: event.target.value })}>
+                  <option value="ALL">All jerseys</option>
+                  <option value="NATIONAL">National teams</option>
+                  <option value="CLUBS">Clubs</option>
+                </select>
+              </label>
+
+              <label className="search-box">
+                <span>Shorts</span>
+                <select value={filters.shorts} onChange={(event) => setFilters({ ...filters, shorts: event.target.value })}>
+                  <option value="ALL">All</option>
+                  <option value="INCLUDED">Included</option>
+                  <option value="NOT_INCLUDED">Not included</option>
+                </select>
+              </label>
+
+              <label className="search-box">
+                <span>Sleeve</span>
+                <select value={filters.sleeve} onChange={(event) => setFilters({ ...filters, sleeve: event.target.value })}>
+                  <option value="ALL">All</option>
+                  <option value="HALF">Half</option>
+                  <option value="FULL">Full</option>
+                </select>
+              </label>
+
+              <label className="search-box">
+                <span>Version</span>
+                <select value={filters.version} onChange={(event) => setFilters({ ...filters, version: event.target.value })}>
+                  <option value="ALL">All</option>
+                  <option value="PLAYER">Player</option>
+                  <option value="FAN">Fan</option>
+                </select>
+              </label>
+
+              <label className="search-box">
+                <span>Team</span>
+                <select value={filters.team} onChange={(event) => setFilters({ ...filters, team: event.target.value })}>
+                  {teams.map((team) => (
+                    <option key={team} value={team}>{team}</option>
+                  ))}
+                </select>
+              </label>
+            </div>
+
+            {error && activeTab === 'catalog' && !selectedJersey ? <p className="state state--error">{error}</p> : null}
+            {message && activeTab === 'catalog' && !selectedJersey ? <p className="state">{message}</p> : null}
+
+            <div className="section-head admin-list__header">
+              <div>
+                <p className="eyebrow">Results</p>
+                <h2>{loading ? 'Loading...' : `${filteredJerseys.length} saved jerseys`}</h2>
+              </div>
+            </div>
+
+            <div className="admin-list__items">
+              {filteredJerseys.map((jersey) => (
+                <button key={jersey.id} type="button" className={`admin-list__item ${selectedJerseyId === jersey.id ? 'is-active' : ''}`} onClick={() => setSelectedJerseyId(jersey.id)}>
+                  <span>{jersey.name}</span>
+                  <small>{jersey.team_name}</small>
+                </button>
+              ))}
+            </div>
+          </aside>
+
+          <section className="panel admin-form-panel">
+            {selectedJersey ? (
+              <>
+                <div className="section-head">
+                  <div>
+                    <p className="eyebrow">Edit jersey</p>
+                    <h2>{selectedJersey.name}</h2>
+                  </div>
+                  <button type="button" className="action-button action-button--danger" onClick={handleDelete}>Delete jersey</button>
                 </div>
+
+                {error ? <p className="state state--error">{error}</p> : null}
+                {message ? <p className="state">{message}</p> : null}
+
+                <form className="admin-form" onSubmit={handleSubmit}>
+                  <div className="admin-grid">
+                    <label className="search-box"><span>Slug</span><input value={form.slug} onChange={(event) => setForm({ ...form, slug: event.target.value })} /></label>
+                    <label className="search-box"><span>Name</span><input value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} /></label>
+                    <label className="search-box"><span>Team</span><input value={form.team_name} onChange={(event) => setForm({ ...form, team_name: event.target.value })} /></label>
+                    <label className="search-box"><span>League</span><input value={form.league_name} onChange={(event) => setForm({ ...form, league_name: event.target.value })} /></label>
+                    <label className="search-box"><span>Price</span><input type="number" step="0.01" value={form.price} onChange={(event) => setForm({ ...form, price: event.target.value })} /></label>
+                    <label className="search-box"><span>Featured club</span><select value={form.featured_club} onChange={(event) => setForm({ ...form, featured_club: event.target.value })}>{featuredClubOptions.map((option) => (<option key={option.value || 'none'} value={option.value}>{option.label}</option>))}</select></label>
+                    <label className="search-box"><span>Sleeve</span><select value={form.sleeve_type} onChange={(event) => setForm({ ...form, sleeve_type: event.target.value })}><option value="HALF">HALF</option><option value="FULL">FULL</option></select></label>
+                    <label className="search-box"><span>Version</span><select value={form.version_type} onChange={(event) => setForm({ ...form, version_type: event.target.value })}><option value="PLAYER">PLAYER</option><option value="FAN">FAN</option></select></label>
+                    <label className="search-box"><span>National team</span><select value={toBooleanString(form.is_national_team)} onChange={(event) => setForm({ ...form, is_national_team: event.target.value === 'true' })}><option value="true">Yes</option><option value="false">No</option></select></label>
+                    <label className="search-box"><span>Has shorts</span><select value={toBooleanString(form.has_shorts)} onChange={(event) => setForm({ ...form, has_shorts: event.target.value === 'true' })}><option value="true">Yes</option><option value="false">No</option></select></label>
+                    <label className="search-box"><span>Available sizes</span><input value={form.available_sizes} onChange={(event) => setForm({ ...form, available_sizes: event.target.value })} placeholder="S,M,L,XL,2XL (XXL/ZXL accepted)" /></label>
+                  </div>
+
+                  <label className="search-box admin-textarea">
+                    <span>Description</span>
+                    <textarea rows="5" value={form.description} onChange={(event) => setForm({ ...form, description: event.target.value })} />
+                  </label>
+
+                  <div className="search-box">
+                    <span>Images (1-5)</span>
+                    <div 
+                      style={{
+                        border: '1px solid var(--border)',
+                        padding: '24px',
+                        textAlign: 'center',
+                        background: 'var(--panel-strong)',
+                        cursor: 'pointer',
+                        position: 'relative',
+                        transition: 'all 0.2s ease',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        gap: '8px'
+                      }}
+                      onClick={() => document.getElementById('admin_file_input').click()}
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--text)', marginBottom: '4px' }}>
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="17 8 12 3 7 8"></polyline>
+                        <line x1="12" y1="3" x2="12" y2="15"></line>
+                      </svg>
+                      <span style={{ fontSize: '0.9rem', fontWeight: 'bold' }}>
+                        Tap to upload new photos
+                      </span>
+                      <span style={{ fontSize: '0.8rem', color: 'var(--muted)' }}>
+                        Supports PNG, JPG, JPEG (Max 8MB per image)
+                      </span>
+                      <input
+                        id="admin_file_input"
+                        type="file"
+                        accept="image/*"
+                        multiple
+                        style={{ display: 'none' }}
+                        onChange={(event) => {
+                          const selected = Array.from(event.target.files || []);
+                          if (selected.length > 5) {
+                            setError('Maximum 5 images are allowed');
+                            setFiles(selected.slice(0, 5));
+                          } else {
+                            setError('');
+                            setFiles(selected);
+                          }
+                        }}
+                      />
+                    </div>
+                  </div>
+
+                  {files.length > 0 && (
+                    <div style={{ display: 'grid', gap: '8px', marginTop: '12px' }}>
+                      <span style={{ fontSize: '0.85rem', fontWeight: 'bold', color: 'var(--text)' }}>
+                        Selected Files for Upload ({files.length}):
+                      </span>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                        {files.map((file, idx) => {
+                          const url = URL.createObjectURL(file);
+                          return (
+                            <div 
+                              key={`${file.name}-${idx}`} 
+                              style={{
+                                position: 'relative',
+                                width: '80px',
+                                height: '80px',
+                                overflow: 'hidden',
+                                border: '1px solid var(--border)'
+                              }}
+                            >
+                              <img src={url} alt={file.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setFiles(files.filter((_, i) => i !== idx));
+                                }}
+                                style={{
+                                  position: 'absolute',
+                                  top: '4px',
+                                  right: '4px',
+                                  background: 'rgba(0,0,0,0.6)',
+                                  color: '#fff',
+                                  border: 0,
+                                  width: '20px',
+                                  height: '20px',
+                                  display: 'grid',
+                                  placeItems: 'center',
+                                  cursor: 'pointer',
+                                  fontSize: '10px',
+                                  lineHeight: 1
+                                }}
+                              >
+                                ✕
+                              </button>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="admin-hint">
+                    <strong>Current images:</strong>
+                    <div className="admin-preview-grid">
+                      {currentImages.map((image, index) => (
+                        <img key={`${image}-${index}`} src={image} alt={`Current jersey ${index + 1}`} />
+                      ))}
+                    </div>
+                    <p>Uploading new files replaces the current image set.</p>
+                  </div>
+
+                  <div className="admin-submit-row">
+                    <button type="submit" className="action-button" disabled={saving}>{saving ? 'Saving...' : 'Update jersey'}</button>
+                  </div>
+                </form>
+              </>
+            ) : (
+              <div className="flex flex-col items-center justify-center h-full text-center py-24 text-muted">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-charcoal/30 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+                <p className="font-heading font-extrabold uppercase tracking-wider text-charcoal/60">No jersey selected</p>
+                <p className="text-sm text-charcoal/40 font-sans mt-2">Select a jersey from the catalog list on the left to edit its details.</p>
               </div>
             )}
-
-            <div className="admin-hint">
-              {selectedJersey ? (
-                <>
-                  <strong>Current images:</strong>
-                  <div className="admin-preview-grid">
-                    {currentImages.map((image, index) => (
-                      <img key={`${image}-${index}`} src={image} alt={`Current jersey ${index + 1}`} />
-                    ))}
-                  </div>
-                  <p>Uploading new files replaces the current image set.</p>
-                </>
-              ) : (
-                <p>Add up to 5 images before saving the jersey.</p>
-              )}
-            </div>
-
-            <div className="admin-submit-row">
-              <button type="submit" className="action-button" disabled={saving}>{saving ? 'Saving...' : selectedJersey ? 'Update jersey' : 'Create jersey'}</button>
-            </div>
-          </form>
+          </section>
         </section>
-      </section>
+      ) : (
+        /* New Jersey Tab Form */
+        <section className="admin-layout single-panel">
+          <section className="panel admin-form-panel w-full">
+            <div className="section-head">
+              <div>
+                <p className="eyebrow">New jersey</p>
+                <h2>Start a new product</h2>
+              </div>
+            </div>
+
+            {error ? <p className="state state--error">{error}</p> : null}
+            {message ? <p className="state">{message}</p> : null}
+
+            <form className="admin-form" onSubmit={handleSubmit}>
+              <div className="admin-grid">
+                <label className="search-box"><span>Slug (Optional)</span><input value={form.slug} onChange={(event) => setForm({ ...form, slug: event.target.value })} placeholder="Auto-generated if empty" /></label>
+                <label className="search-box"><span>Name</span><input value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} placeholder="Real Madrid 26-27 Home" /></label>
+                <label className="search-box"><span>Team</span><input value={form.team_name} onChange={(event) => setForm({ ...form, team_name: event.target.value })} placeholder="Real Madrid" /></label>
+                <label className="search-box"><span>League</span><input value={form.league_name} onChange={(event) => setForm({ ...form, league_name: event.target.value })} placeholder="La Liga" /></label>
+                <label className="search-box"><span>Price (INR)</span><input type="number" step="0.01" value={form.price} onChange={(event) => setForm({ ...form, price: event.target.value })} /></label>
+                <label className="search-box"><span>Featured club</span><select value={form.featured_club} onChange={(event) => setForm({ ...form, featured_club: event.target.value })}>{featuredClubOptions.map((option) => (<option key={option.value || 'none'} value={option.value}>{option.label}</option>))}</select></label>
+                <label className="search-box"><span>Sleeve</span><select value={form.sleeve_type} onChange={(event) => setForm({ ...form, sleeve_type: event.target.value })}><option value="HALF">HALF</option><option value="FULL">FULL</option></select></label>
+                <label className="search-box"><span>Version</span><select value={form.version_type} onChange={(event) => setForm({ ...form, version_type: event.target.value })}><option value="PLAYER">PLAYER</option><option value="FAN">FAN</option></select></label>
+                <label className="search-box"><span>National team</span><select value={toBooleanString(form.is_national_team)} onChange={(event) => setForm({ ...form, is_national_team: event.target.value === 'true' })}><option value="true">Yes</option><option value="false">No</option></select></label>
+                <label className="search-box"><span>Has shorts</span><select value={toBooleanString(form.has_shorts)} onChange={(event) => setForm({ ...form, has_shorts: event.target.value === 'true' })}><option value="true">Yes</option><option value="false">No</option></select></label>
+                <label className="search-box"><span>Available sizes</span><input value={form.available_sizes} onChange={(event) => setForm({ ...form, available_sizes: event.target.value })} placeholder="S,M,L,XL,2XL (XXL/ZXL accepted)" /></label>
+              </div>
+
+              <label className="search-box admin-textarea">
+                <span>Description</span>
+                <textarea rows="5" value={form.description} onChange={(event) => setForm({ ...form, description: event.target.value })} placeholder="Experience the game with this premium quality football jersey..." />
+              </label>
+
+              <div className="search-box">
+                <span>Images (1-5)</span>
+                <div 
+                  style={{
+                    border: '1px solid var(--border)',
+                    padding: '24px',
+                    textAlign: 'center',
+                    background: 'var(--panel-strong)',
+                    cursor: 'pointer',
+                    position: 'relative',
+                    transition: 'all 0.2s ease',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    gap: '8px'
+                  }}
+                  onClick={() => document.getElementById('admin_file_input_new').click()}
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--text)', marginBottom: '4px' }}>
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="17 8 12 3 7 8"></polyline>
+                    <line x1="12" y1="3" x2="12" y2="15"></line>
+                  </svg>
+                  <span style={{ fontSize: '0.9rem', fontWeight: 'bold' }}>
+                    Tap to upload photos
+                  </span>
+                  <span style={{ fontSize: '0.8rem', color: 'var(--muted)' }}>
+                    Supports PNG, JPG, JPEG (Max 8MB per image)
+                  </span>
+                  <input
+                    id="admin_file_input_new"
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    style={{ display: 'none' }}
+                    onChange={(event) => {
+                      const selected = Array.from(event.target.files || []);
+                      if (selected.length > 5) {
+                        setError('Maximum 5 images are allowed');
+                        setFiles(selected.slice(0, 5));
+                      } else {
+                        setError('');
+                        setFiles(selected);
+                      }
+                    }}
+                  />
+                </div>
+              </div>
+
+              {files.length > 0 && (
+                <div style={{ display: 'grid', gap: '8px', marginTop: '12px' }}>
+                  <span style={{ fontSize: '0.85rem', fontWeight: 'bold', color: 'var(--text)' }}>
+                    Selected Files for Upload ({files.length}):
+                  </span>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                    {files.map((file, idx) => {
+                      const url = URL.createObjectURL(file);
+                      return (
+                        <div 
+                          key={`${file.name}-${idx}`} 
+                          style={{
+                            position: 'relative',
+                            width: '80px',
+                            height: '80px',
+                            overflow: 'hidden',
+                            border: '1px solid var(--border)'
+                          }}
+                        >
+                          <img src={url} alt={file.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setFiles(files.filter((_, i) => i !== idx));
+                            }}
+                            style={{
+                              position: 'absolute',
+                              top: '4px',
+                              right: '4px',
+                              background: 'rgba(0,0,0,0.6)',
+                              color: '#fff',
+                              border: 0,
+                              width: '20px',
+                              height: '20px',
+                              display: 'grid',
+                              placeItems: 'center',
+                              cursor: 'pointer',
+                              fontSize: '10px',
+                              lineHeight: 1
+                            }}
+                          >
+                            ✕
+                          </button>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              <div className="admin-hint">
+                <p>Add up to 5 images before saving the jersey.</p>
+              </div>
+
+              <div className="admin-submit-row">
+                <button type="submit" className="action-button" disabled={saving}>{saving ? 'Saving...' : 'Create jersey'}</button>
+              </div>
+            </form>
+          </section>
+        </section>
+      )}
     </main>
   );
 }

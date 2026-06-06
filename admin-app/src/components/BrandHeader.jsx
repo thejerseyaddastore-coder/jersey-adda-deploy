@@ -6,8 +6,8 @@ export default function BrandHeader({ onNavigatePublic }) {
 
   return (
     <header className="topbar">
-      <button className="brand" type="button">
-        <BrandLogo showWordmark={false} sizeClass="h-4 w-4" className="gap-2" />
+      <button className="brand" type="button" onClick={() => navigate('/')}>
+        <BrandLogo showWordmark={true} />
       </button>
 
       <nav className="topnav">
