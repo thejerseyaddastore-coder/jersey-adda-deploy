@@ -109,7 +109,8 @@ export default function JerseyDetailPage() {
   }
 
   // WhatsApp ordering info
-  const message = `Hi! I want to order the "${jersey.name}" (Slug: ${jersey.slug}). Price: ${formatCurrency(jersey.price)}`;
+  const displayPrice = jersey.is_on_sale ? jersey.sale_price : jersey.price;
+  const message = `Hi! I want to order the "${jersey.name}" (Slug: ${jersey.slug}). Price: ${formatCurrency(displayPrice)}`;
   const whatsappUrl = `https://wa.me/${whatsappNumber.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(message)}`;
 
   return (
@@ -204,9 +205,26 @@ export default function JerseyDetailPage() {
                   {jersey.name}
                 </h1>
               </div>
-              <p className="font-heading text-2xl font-black text-charcoal whitespace-nowrap pt-1 sm:pt-0">
-                {formatCurrency(jersey.price || 0)}
-              </p>
+              {jersey.is_on_sale ? (
+                <div className="text-right pt-1 sm:pt-0 shrink-0">
+                  <div className="flex items-center justify-end gap-2 mb-1">
+                    <span className="font-heading text-[10px] font-black uppercase tracking-wider bg-red-600 text-white px-2 py-0.5 border border-red-700">
+                      SALE
+                    </span>
+                    <span className="font-sans text-xs text-red-600 font-bold">
+                      Save {formatCurrency(Number(jersey.price) - Number(jersey.sale_price))} ({Math.round(((Number(jersey.price) - Number(jersey.sale_price)) / Number(jersey.price)) * 100)}%)
+                    </span>
+                  </div>
+                  <div className="flex items-baseline justify-end gap-2 mt-1 whitespace-nowrap">
+                    <span className="font-heading text-2xl font-black text-charcoal">{formatCurrency(jersey.sale_price || 0)}</span>
+                    <span className="font-heading text-sm font-semibold text-charcoal/45 line-through">{formatCurrency(jersey.price || 0)}</span>
+                  </div>
+                </div>
+              ) : (
+                <p className="font-heading text-2xl font-black text-charcoal whitespace-nowrap pt-1 sm:pt-0">
+                  {formatCurrency(jersey.price || 0)}
+                </p>
+              )}
             </div>
 
             <div className="text-charcoal/70 mb-8 font-sans text-sm leading-relaxed max-w-xl">

@@ -54,7 +54,9 @@ async function listJerseys(query) {
     hasShorts: query.has_shorts,
     sleeveType: normalizeOptionalString(query.sleeve_type),
     versionType: normalizeOptionalString(query.version_type),
-    featuredClub: normalizeOptionalString(query.featured_club)
+    featuredClub: normalizeOptionalString(query.featured_club),
+    categoryType: normalizeOptionalString(query.category_type),
+    isOnSale: query.is_on_sale
   };
 
   return jerseyModel.list({
@@ -91,6 +93,15 @@ async function createJersey(payload, files) {
       uploadedImages.push(await cloudinaryService.uploadImage(file));
     }
 
+    if (payload.is_on_sale) {
+      if (payload.sale_price === undefined || payload.sale_price === null) {
+        throw new ApiError(400, 'Sale price is required when product is on sale');
+      }
+      if (Number(payload.sale_price) >= Number(payload.price)) {
+        throw new ApiError(400, 'Sale price must be less than the regular price');
+      }
+    }
+
     const rawSlug = payload.slug || generateSlug(payload.name, payload.team_name);
     const slug = slugify(rawSlug, { lower: true, strict: true, trim: true });
 
@@ -107,7 +118,10 @@ async function createJersey(payload, files) {
       version_type: normalizeOptionalString(payload.version_type),
       featured_club: normalizeOptionalString(payload.featured_club),
       available_sizes: payload.available_sizes ?? defaultSizes,
-      is_active: payload.is_active ?? true
+      is_active: payload.is_active ?? true,
+      category_type: payload.category_type ?? 'CLUB',
+      is_on_sale: payload.is_on_sale ?? false,
+      sale_price: payload.is_on_sale ? (payload.sale_price !== undefined ? payload.sale_price : null) : null
     };
 
     createdJersey = await jerseyModel.create(jerseyPayload);
@@ -146,6 +160,19 @@ async function updateJersey(id, payload, files) {
     const rawSlug = payload.slug || existingJersey.slug;
     const slug = slugify(rawSlug, { lower: true, strict: true, trim: true });
 
+    const isOnSale = payload.is_on_sale !== undefined ? payload.is_on_sale : existingJersey.is_on_sale;
+    const finalPrice = payload.price !== undefined ? payload.price : existingJersey.price;
+    const finalSalePrice = payload.sale_price !== undefined ? payload.sale_price : existingJersey.sale_price;
+
+    if (isOnSale) {
+      if (finalSalePrice === undefined || finalSalePrice === null) {
+        throw new ApiError(400, 'Sale price is required when product is on sale');
+      }
+      if (Number(finalSalePrice) >= Number(finalPrice)) {
+        throw new ApiError(400, 'Sale price must be less than the regular price');
+      }
+    }
+
     const jerseyPayload = {
       slug,
       name: payload.name ?? existingJersey.name,
@@ -159,7 +186,10 @@ async function updateJersey(id, payload, files) {
       version_type: payload.version_type === undefined ? existingJersey.version_type : normalizeOptionalString(payload.version_type),
       featured_club: payload.featured_club === undefined ? existingJersey.featured_club : normalizeOptionalString(payload.featured_club),
       available_sizes: payload.available_sizes === undefined ? existingJersey.available_sizes : payload.available_sizes,
-      is_active: payload.is_active ?? existingJersey.is_active
+      is_active: payload.is_active ?? existingJersey.is_active,
+      category_type: payload.category_type === undefined ? existingJersey.category_type : payload.category_type,
+      is_on_sale: isOnSale,
+      sale_price: isOnSale ? finalSalePrice : null
     };
 
     const updatedJersey = await jerseyModel.update(id, jerseyPayload);

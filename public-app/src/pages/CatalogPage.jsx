@@ -18,11 +18,13 @@ export default function CatalogPage() {
   const initialTeam = queryParams.get('team') || 'All';
   const initialClub = queryParams.get('club') || 'All';
   const initialSearch = queryParams.get('search') || '';
-
+  const initialIsOnSale = queryParams.get('is_on_sale') || 'All';
+ 
   const [search, setSearch] = useState(initialSearch);
   const [team, setTeam] = useState(initialTeam);
   const [club, setClub] = useState(initialClub);
-
+  const [isOnSale, setIsOnSale] = useState(initialIsOnSale);
+ 
   useEffect(() => {
     let active = true;
     async function fetchJerseys() {
@@ -42,31 +44,40 @@ export default function CatalogPage() {
     fetchJerseys();
     return () => { active = false; };
   }, []);
-
+ 
   // Update URL when filters change
   useEffect(() => {
     const params = new URLSearchParams();
     if (search) params.set('search', search);
     if (team !== 'All') params.set('team', team);
     if (club !== 'All') params.set('club', club);
+    if (isOnSale !== 'All') params.set('is_on_sale', isOnSale);
     
     navigate({ search: params.toString() }, { replace: true });
-  }, [search, team, club, navigate]);
-
+  }, [search, team, club, isOnSale, navigate]);
+ 
   const teams = ['All', ...new Set(jerseys.map((jersey) => jersey.team_name).filter(Boolean))];
-
+ 
   const filtered = jerseys.filter((jersey) => {
     const matchesSearch = [jersey.name, jersey.team_name, jersey.league_name, jersey.description]
       .filter(Boolean)
       .join(' ')
       .toLowerCase()
       .includes(search.toLowerCase());
-
+ 
     const matchesTeam = team === 'All' || jersey.team_name === team;
     const matchesClub = club === 'All' || matchesClubFilter(jersey, club);
-    return matchesSearch && matchesTeam && matchesClub;
-  });
+    
+    let matchesSale = true;
+    if (isOnSale === 'Yes') {
+      matchesSale = jersey.is_on_sale === true;
+    } else if (isOnSale === 'No') {
+      matchesSale = jersey.is_on_sale === false;
+    }
 
+    return matchesSearch && matchesTeam && matchesClub && matchesSale;
+  });
+ 
   return (
     <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <div className="bg-white rounded-none shadow-none border border-charcoal/10 p-6 sm:p-8 mb-10">
@@ -74,7 +85,7 @@ export default function CatalogPage() {
         <p className="text-charcoal/60 mb-8 max-w-3xl text-sm font-sans leading-relaxed">
           Browse our entire collection. Search by team, player, or browse through all available options to find your perfect match.
         </p>
-
+ 
         <div className="flex flex-col md:flex-row gap-4">
           <div className="relative flex-grow">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-charcoal/40">
@@ -88,7 +99,7 @@ export default function CatalogPage() {
               onChange={(event) => setSearch(event.target.value)}
             />
           </div>
-
+ 
           <div className="relative md:w-64">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-charcoal/40">
               <Filter className="w-4 h-4" />
@@ -105,22 +116,34 @@ export default function CatalogPage() {
               ))}
             </select>
           </div>
+
+          <div className="relative md:w-48">
+            <select 
+              value={isOnSale} 
+              onChange={(event) => setIsOnSale(event.target.value)}
+              className="block w-full px-4 py-3 border border-charcoal/20 bg-white rounded-none leading-5 font-heading text-xs font-bold uppercase tracking-wider focus:outline-none focus:border-charcoal transition-all appearance-none cursor-pointer"
+            >
+              <option value="All">On Sale: All</option>
+              <option value="Yes">On Sale: Yes</option>
+              <option value="No">On Sale: No</option>
+            </select>
+          </div>
         </div>
       </div>
-
+ 
       <div className="mb-6 flex justify-between items-end">
         <h2 className="font-heading text-xl font-extrabold uppercase tracking-wider text-charcoal">
           {loading ? 'Loading jerseys...' : `${filtered.length} jerseys available`}
         </h2>
       </div>
-
+ 
       {error && <p className="bg-red-50 text-red-600 p-4 rounded-none border border-red-150 font-sans text-sm">{error}</p>}
-
+ 
       {!loading && !error && filtered.length === 0 && (
         <div className="text-center py-20 bg-white rounded-none border border-charcoal/10 shadow-none">
           <h3 className="font-heading text-xl font-bold uppercase tracking-wider text-charcoal mb-2">No matches found</h3>
           <p className="text-sm text-charcoal/50 mb-6 font-sans">Try adjusting your search or filters.</p>
-          <button onClick={() => { setSearch(''); setTeam('All'); }} className="btn-primary">
+          <button onClick={() => { setSearch(''); setTeam('All'); setClub('All'); setIsOnSale('All'); }} className="btn-primary">
             Clear Filters
           </button>
         </div>

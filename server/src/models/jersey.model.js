@@ -88,6 +88,14 @@ async function list({ filters, sortBy, sortOrder, page, limit }) {
     query = query.eq('featured_club', filters.featuredClub);
   }
 
+  if (filters.categoryType) {
+    query = query.eq('category_type', filters.categoryType);
+  }
+
+  if (filters.isOnSale !== undefined) {
+    query = query.eq('is_on_sale', filters.isOnSale);
+  }
+
   query = query.order(sortBy, { ascending: sortOrder === 'asc' });
 
   const offset = (page - 1) * limit;

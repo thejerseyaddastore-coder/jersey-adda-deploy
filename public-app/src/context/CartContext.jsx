@@ -20,6 +20,14 @@ export const CartProvider = ({ children }) => {
   }, [cart]);
 
   const addToCart = (jersey, size, quantityToAdd = 1) => {
+    const itemPrice = jersey.is_on_sale ? Number(jersey.sale_price) : Number(jersey.price);
+    const itemToAdd = {
+      ...jersey,
+      price: itemPrice,
+      size,
+      quantity: quantityToAdd
+    };
+
     setCart((prevCart) => {
       const existingItem = prevCart.find(
         (item) => item.id === jersey.id && item.size === size
@@ -31,7 +39,7 @@ export const CartProvider = ({ children }) => {
             : item
         );
       }
-      return [...prevCart, { ...jersey, size, quantity: quantityToAdd }];
+      return [...prevCart, itemToAdd];
     });
     setIsCartOpen(true);
   };

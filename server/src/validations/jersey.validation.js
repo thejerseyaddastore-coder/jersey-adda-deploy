@@ -6,6 +6,7 @@ const allowedFeaturedClubs = ['BARCELONA', 'REAL_MADRID', 'MAN_UNITED', 'AC_MILA
 const allowedSizeTypes = ['S', 'M', 'L', 'XL', '2XL'];
 const allowedSortFields = ['created_at', 'price', 'name', 'team_name', 'featured_club'];
 const allowedSortOrders = ['asc', 'desc'];
+const allowedCategoryTypes = ['INTERNATIONAL', 'CLUB', 'SHORTS', 'OTHER'];
 
 function normalizeSizeList(value) {
   const normalize = (size) => {
@@ -165,6 +166,11 @@ const jerseyListQuerySchema = z
       (value) => emptyToUndefined(value),
       z.enum(allowedFeaturedClubs).optional()
     ),
+    category_type: z.preprocess(
+      (value) => emptyToUndefined(value),
+      z.enum(allowedCategoryTypes).optional()
+    ),
+    is_on_sale: booleanQuerySchema(),
     page: integerQuerySchema(1, 1, 1000000),
     limit: integerQuerySchema(12, 1, 100),
     sort_by: z.preprocess((value) => emptyToUndefined(value), z.enum(allowedSortFields).default('created_at')),
@@ -219,8 +225,31 @@ const jerseyCreateSchema = z.object({
     z.enum(allowedFeaturedClubs).optional().nullable()
   ),
   available_sizes: z.preprocess(normalizeSizeList, z.array(z.enum(allowedSizeTypes)).optional().nullable()),
-  is_active: booleanBodySchema(true)
-});
+  is_active: booleanBodySchema(true),
+  category_type: z.preprocess(
+    (value) => emptyToUndefined(value),
+    z.enum(allowedCategoryTypes).default('CLUB')
+  ),
+  is_on_sale: booleanBodySchema(false),
+  sale_price: z.preprocess(
+    (value) => emptyToUndefined(value),
+    z.coerce.number().positive().optional().nullable()
+  )
+}).refine(
+  (data) => {
+    if (data.is_on_sale) {
+      if (data.sale_price === undefined || data.sale_price === null) {
+        return false;
+      }
+      return data.sale_price < data.price;
+    }
+    return true;
+  },
+  {
+    message: 'sale_price must be present and less than regular price when is_on_sale is true',
+    path: ['sale_price']
+  }
+);
 
 const jerseyUpdateSchema = z.object({
   slug: z.preprocess((value) => emptyToUndefined(value), z.string().trim().min(1).max(255).optional()),
@@ -247,8 +276,30 @@ const jerseyUpdateSchema = z.object({
     z.enum(allowedFeaturedClubs).optional().nullable()
   ),
   available_sizes: z.preprocess(normalizeSizeList, z.array(z.enum(allowedSizeTypes)).optional().nullable()),
-  is_active: booleanOptionalBodySchema()
-});
+  is_active: booleanOptionalBodySchema(),
+  category_type: z.preprocess(
+    (value) => emptyToUndefined(value),
+    z.enum(allowedCategoryTypes).optional()
+  ),
+  is_on_sale: booleanOptionalBodySchema(),
+  sale_price: z.preprocess(
+    (value) => emptyToUndefined(value),
+    z.coerce.number().positive().optional().nullable()
+  )
+}).refine(
+  (data) => {
+    if (data.is_on_sale && data.sale_price !== undefined && data.sale_price !== null) {
+      if (data.price !== undefined && data.price !== null) {
+        return data.sale_price < data.price;
+      }
+    }
+    return true;
+  },
+  {
+    message: 'sale_price must be less than regular price when is_on_sale is true',
+    path: ['sale_price']
+  }
+);
 
 module.exports = {
   jerseyListQuerySchema,

@@ -15,7 +15,10 @@ const defaultForm = {
   sleeve_type: 'HALF',
   version_type: 'PLAYER',
   featured_club: '',
-  available_sizes: 'S,M,L,XL,2XL'
+  available_sizes: 'S,M,L,XL,2XL',
+  category_type: 'CLUB',
+  is_on_sale: false,
+  sale_price: ''
 };
 
 const featuredClubOptions = [
@@ -43,6 +46,18 @@ function createFormData(form, files) {
   };
 
   Object.entries(form).forEach(([key, value]) => {
+    if (key === 'is_on_sale') {
+      formData.append(key, toBooleanString(value));
+      return;
+    }
+
+    if (key === 'sale_price') {
+      if (form.is_on_sale && value !== '' && value !== null && value !== undefined) {
+        formData.append(key, String(value));
+      }
+      return;
+    }
+
     if (value === '' || value === null || value === undefined) return;
 
     if (Array.isArray(value)) {
@@ -88,7 +103,10 @@ function mapJerseyToForm(jersey) {
     sleeve_type: jersey.sleeve_type || 'HALF',
     version_type: jersey.version_type || 'PLAYER',
     featured_club: jersey.featured_club || '',
-    available_sizes: Array.isArray(jersey.available_sizes) ? jersey.available_sizes.join(',') : 'S,M,L,XL,2XL'
+    available_sizes: Array.isArray(jersey.available_sizes) ? jersey.available_sizes.join(',') : 'S,M,L,XL,2XL',
+    category_type: jersey.category_type || 'CLUB',
+    is_on_sale: Boolean(jersey.is_on_sale),
+    sale_price: jersey.sale_price !== null && jersey.sale_price !== undefined ? String(jersey.sale_price) : ''
   };
 }
 
@@ -422,6 +440,25 @@ export default function AdminDashboard({ adminToken, onLogout, onOpenPublic }) {
                     <label className="search-box"><span>National team</span><select value={toBooleanString(form.is_national_team)} onChange={(event) => setForm({ ...form, is_national_team: event.target.value === 'true' })}><option value="true">Yes</option><option value="false">No</option></select></label>
                     <label className="search-box"><span>Has shorts</span><select value={toBooleanString(form.has_shorts)} onChange={(event) => setForm({ ...form, has_shorts: event.target.value === 'true' })}><option value="true">Yes</option><option value="false">No</option></select></label>
                     <label className="search-box"><span>Available sizes</span><input value={form.available_sizes} onChange={(event) => setForm({ ...form, available_sizes: event.target.value })} placeholder="S,M,L,XL,2XL (XXL/ZXL accepted)" /></label>
+                    <label className="search-box">
+                      <span>Category</span>
+                      <select value={form.category_type} onChange={(event) => setForm({ ...form, category_type: event.target.value })}>
+                        <option value="CLUB">Club Jerseys</option>
+                        <option value="INTERNATIONAL">International Jerseys</option>
+                        <option value="SHORTS">Jerseys With Shorts</option>
+                        <option value="OTHER">Other Sports & Merchandise</option>
+                      </select>
+                    </label>
+                    <label className="search-box" style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                      <input type="checkbox" checked={form.is_on_sale} onChange={(event) => setForm({ ...form, is_on_sale: event.target.checked })} style={{ width: 'auto', margin: 0 }} />
+                      <span>On Sale</span>
+                    </label>
+                    {form.is_on_sale && (
+                      <label className="search-box">
+                        <span>Sale Price (INR)</span>
+                        <input type="number" step="0.01" value={form.sale_price} onChange={(event) => setForm({ ...form, sale_price: event.target.value })} placeholder="Enter sale price" />
+                      </label>
+                    )}
                   </div>
 
                   <label className="search-box admin-textarea">
@@ -582,6 +619,25 @@ export default function AdminDashboard({ adminToken, onLogout, onOpenPublic }) {
                 <label className="search-box"><span>National team</span><select value={toBooleanString(form.is_national_team)} onChange={(event) => setForm({ ...form, is_national_team: event.target.value === 'true' })}><option value="true">Yes</option><option value="false">No</option></select></label>
                 <label className="search-box"><span>Has shorts</span><select value={toBooleanString(form.has_shorts)} onChange={(event) => setForm({ ...form, has_shorts: event.target.value === 'true' })}><option value="true">Yes</option><option value="false">No</option></select></label>
                 <label className="search-box"><span>Available sizes</span><input value={form.available_sizes} onChange={(event) => setForm({ ...form, available_sizes: event.target.value })} placeholder="S,M,L,XL,2XL (XXL/ZXL accepted)" /></label>
+                <label className="search-box">
+                  <span>Category</span>
+                  <select value={form.category_type} onChange={(event) => setForm({ ...form, category_type: event.target.value })}>
+                    <option value="CLUB">Club Jerseys</option>
+                    <option value="INTERNATIONAL">International Jerseys</option>
+                    <option value="SHORTS">Jerseys With Shorts</option>
+                    <option value="OTHER">Other Sports & Merchandise</option>
+                  </select>
+                </label>
+                <label className="search-box" style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                  <input type="checkbox" checked={form.is_on_sale} onChange={(event) => setForm({ ...form, is_on_sale: event.target.checked })} style={{ width: 'auto', margin: 0 }} />
+                  <span>On Sale</span>
+                </label>
+                {form.is_on_sale && (
+                  <label className="search-box">
+                    <span>Sale Price (INR)</span>
+                    <input type="number" step="0.01" value={form.sale_price} onChange={(event) => setForm({ ...form, sale_price: event.target.value })} placeholder="Enter sale price" />
+                  </label>
+                )}
               </div>
 
               <label className="search-box admin-textarea">

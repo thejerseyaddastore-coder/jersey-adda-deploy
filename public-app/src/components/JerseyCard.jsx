@@ -73,6 +73,12 @@ export default function JerseyCard({ jersey }) {
             </>
           )}
 
+          {jersey.is_on_sale && (
+            <span className="absolute top-2 left-2 bg-red-600 text-white text-[10px] font-heading font-black uppercase tracking-wider px-2 py-0.5 rounded-none border border-red-700 z-10 shadow-sm">
+              SALE
+            </span>
+          )}
+
           <div className="absolute top-2 right-2 flex flex-col space-y-1 z-10">
             {jersey.version && (
               <span className="bg-charcoal text-white text-[10px] font-heading font-bold uppercase tracking-wider px-2 py-0.5 rounded-none border border-white/10">
@@ -93,9 +99,27 @@ export default function JerseyCard({ jersey }) {
           <Link to={`/jerseys/${jerseySlug}`}>{jersey.name}</Link>
         </h3>
         <p className="font-sans text-xs text-charcoal/50 uppercase tracking-widest font-semibold mb-2">{jersey.team_name}</p>
-        <p className="font-heading text-lg font-black text-charcoal mb-4">
-          {formatCurrency(jersey.price)}
-        </p>
+        
+        {jersey.is_on_sale ? (
+          <div className="mb-4">
+            <div className="flex items-center gap-2 mb-1">
+              <span className="bg-red-600 text-white text-[9px] font-heading font-black uppercase tracking-wider px-1.5 py-0.5 rounded-none">
+                SALE
+              </span>
+              <span className="font-sans text-[11px] text-red-600 font-bold">
+                Save {formatCurrency(Number(jersey.price) - Number(jersey.sale_price))}
+              </span>
+            </div>
+            <div className="flex items-baseline gap-1.5">
+              <span className="font-heading text-lg font-black text-charcoal">{formatCurrency(jersey.sale_price)}</span>
+              <span className="font-heading text-xs font-semibold text-charcoal/40 line-through">{formatCurrency(jersey.price)}</span>
+            </div>
+          </div>
+        ) : (
+          <p className="font-heading text-lg font-black text-charcoal mb-4">
+            {formatCurrency(jersey.price)}
+          </p>
+        )}
 
         <div className="mt-auto">
           <div className="mb-1">
