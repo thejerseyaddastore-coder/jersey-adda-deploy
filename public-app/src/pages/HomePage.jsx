@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { listJerseys } from '../api/jerseys';
 import HeroSection from '../components/HeroSection';
+import CategoryTabs from '../components/CategoryTabs';
 import SearchFilters from '../components/SearchFilters';
 import JerseyCard from '../components/JerseyCard';
 import FeaturedClubs from '../components/FeaturedClubs';
@@ -17,6 +18,7 @@ export default function HomePage() {
   const [version, setVersion] = useState('All');
   const [sleeve, setSleeve] = useState('All');
   const [isOnSale, setIsOnSale] = useState('All');
+  const [activeCategory, setActiveCategory] = useState(null);
 
   useEffect(() => {
     let active = true;
@@ -76,17 +78,20 @@ export default function HomePage() {
   });
 
   // Dynamic products groupings based on requirements
-  const saleJerseys = baseFilteredJerseys.filter(j => j.is_on_sale === true);
-  const mostDemandedJerseys = baseFilteredJerseys.slice(0, 8);
-  const internationalJerseys = baseFilteredJerseys.filter(j => j.category_type === 'INTERNATIONAL');
-  const clubJerseys = baseFilteredJerseys.filter(j => j.category_type === 'CLUB');
-  const shortsJerseys = baseFilteredJerseys.filter(j => j.category_type === 'SHORTS');
-  const otherMerchJerseys = baseFilteredJerseys.filter(j => j.category_type === 'OTHER');
+  const saleJerseys = baseFilteredJerseys.filter(j => j.is_on_sale === true && (activeCategory ? j.category_type === activeCategory : true));
+  const mostDemandedJerseys = baseFilteredJerseys.filter(j => activeCategory ? j.category_type === activeCategory : true).slice(0, 8);
+  const internationalJerseys = baseFilteredJerseys.filter(j => j.category_type === 'INTERNATIONAL' && (activeCategory ? activeCategory === 'INTERNATIONAL' : true));
+  const clubJerseys = baseFilteredJerseys.filter(j => j.category_type === 'CLUB' && (activeCategory ? activeCategory === 'CLUB' : true));
+  const shortsJerseys = baseFilteredJerseys.filter(j => j.category_type === 'SHORTS' && (activeCategory ? activeCategory === 'SHORTS' : true));
+  const otherMerchJerseys = baseFilteredJerseys.filter(j => j.category_type === 'OTHER' && (activeCategory ? activeCategory === 'OTHER' : true));
 
   return (
     <>
       {/* 1. Hero Banner */}
       <HeroSection />
+
+      {/* Category Tabs */}
+      <CategoryTabs activeCategory={activeCategory} setActiveCategory={setActiveCategory} />
       
       {/* 2. Search and Filters */}
       <SearchFilters 
@@ -116,7 +121,7 @@ export default function HomePage() {
               <p className="text-sm text-charcoal/50 font-sans">Try adjusting your filters or search criteria.</p>
               <button 
                 onClick={() => {
-                  setSearch(''); setTeam('All'); setVersion('All'); setSleeve('All'); setIsOnSale('All');
+                  setSearch(''); setTeam('All'); setVersion('All'); setSleeve('All'); setIsOnSale('All'); setActiveCategory(null);
                 }}
                 className="mt-6 btn-secondary"
               >

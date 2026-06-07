@@ -18,6 +18,12 @@ const tabs = [
     label: 'Jerseys with Shorts',
     bgImage: 'https://res.cloudinary.com/dlnf5iam6/image/upload/v1780699658/with_shorts_pto6oq.jpg',
     color: 'from-amber-950/80 to-orange-900/80',
+  },
+  {
+    id: 'OTHER',
+    label: 'Other Sports & Jerseys on Sale',
+    bgImage: '/images/other_sports_category_bg.png',
+    color: 'from-purple-950/80 to-indigo-900/80',
   }
 ];
 
@@ -28,18 +34,18 @@ export default function CategoryTabs({ activeCategory, setActiveCategory }) {
         <div className="text-center mb-12">
           <h2 className="text-3xl font-heading font-extrabold uppercase tracking-wider text-charcoal mb-2">Shop by Category</h2>
           <p className="text-sm text-charcoal/60 max-w-xl mx-auto font-sans">
-            Select a category to filter the featured jerseys below.
+            Select a category to filter the featured jerseys below. Click a selected category to clear filters.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {tabs.map((tab) => {
             const isActive = activeCategory === tab.id;
             return (
               <button
                 key={tab.id}
                 type="button"
-                onClick={() => setActiveCategory(tab.id)}
+                onClick={() => setActiveCategory(isActive ? null : tab.id)}
                 className={`group relative h-48 rounded-none overflow-hidden border transition-all duration-300 transform hover:-translate-y-1 w-full text-left outline-none ${
                   isActive 
                     ? 'border-charcoal ring-1 ring-charcoal' 
