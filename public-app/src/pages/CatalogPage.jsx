@@ -20,12 +20,16 @@ export default function CatalogPage() {
   const initialSearch = queryParams.get('search') || '';
   const initialIsOnSale = queryParams.get('is_on_sale') || 'All';
   const initialCategory = queryParams.get('category') || 'All';
+  const initialVersion = queryParams.get('version') || 'All';
+  const initialSort = queryParams.get('sort') || 'None';
  
   const [search, setSearch] = useState(initialSearch);
   const [team, setTeam] = useState(initialTeam);
   const [club, setClub] = useState(initialClub);
   const [isOnSale, setIsOnSale] = useState(initialIsOnSale);
   const [category, setCategory] = useState(initialCategory);
+  const [version, setVersion] = useState(initialVersion);
+  const [sortByPrice, setSortByPrice] = useState(initialSort);
  
   useEffect(() => {
     let active = true;
@@ -55,6 +59,8 @@ export default function CatalogPage() {
     setClub(params.get('club') || 'All');
     setIsOnSale(params.get('is_on_sale') || 'All');
     setCategory(params.get('category') || 'All');
+    setVersion(params.get('version') || 'All');
+    setSortByPrice(params.get('sort') || 'None');
   }, [location.search]);
  
   // Update URL when filters change
@@ -65,9 +71,11 @@ export default function CatalogPage() {
     if (club !== 'All') params.set('club', club);
     if (isOnSale !== 'All') params.set('is_on_sale', isOnSale);
     if (category !== 'All') params.set('category', category);
+    if (version !== 'All') params.set('version', version);
+    if (sortByPrice !== 'None') params.set('sort', sortByPrice);
     
     navigate({ search: params.toString() }, { replace: true });
-  }, [search, team, club, isOnSale, category, navigate]);
+  }, [search, team, club, isOnSale, category, version, sortByPrice, navigate]);
  
   const teams = ['All', ...new Set(jerseys.map((jersey) => jersey.team_name).filter(Boolean))];
  
@@ -88,10 +96,18 @@ export default function CatalogPage() {
       matchesSale = jersey.is_on_sale === false;
     }
 
+    const matchesVersion = version === 'All' || jersey.version_type === version;
     const matchesCategory = category === 'All' || jersey.category_type === category;
 
-    return matchesSearch && matchesTeam && matchesClub && matchesSale && matchesCategory;
+    return matchesSearch && matchesTeam && matchesClub && matchesSale && matchesVersion && matchesCategory;
   });
+ 
+  const sorted = [...filtered];
+  if (sortByPrice === 'LowToHigh') {
+    sorted.sort((a, b) => Number(a.price || 0) - Number(b.price || 0));
+  } else if (sortByPrice === 'HighToLow') {
+    sorted.sort((a, b) => Number(b.price || 0) - Number(a.price || 0));
+  }
  
   return (
     <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -159,6 +175,30 @@ export default function CatalogPage() {
 
           <div className="relative md:w-40">
             <select 
+              value={version} 
+              onChange={(event) => setVersion(event.target.value)}
+              className="block w-full px-4 py-3 border border-charcoal/20 bg-white rounded-none leading-5 font-heading text-xs font-bold uppercase tracking-wider focus:outline-none focus:border-charcoal transition-all appearance-none cursor-pointer"
+            >
+              <option value="All">All Versions</option>
+              <option value="PLAYER">Player Version</option>
+              <option value="FAN">Fan Version</option>
+            </select>
+          </div>
+
+          <div className="relative md:w-40">
+            <select 
+              value={sortByPrice} 
+              onChange={(event) => setSortByPrice(event.target.value)}
+              className="block w-full px-4 py-3 border border-charcoal/20 bg-white rounded-none leading-5 font-heading text-xs font-bold uppercase tracking-wider focus:outline-none focus:border-charcoal transition-all appearance-none cursor-pointer"
+            >
+              <option value="None">Sort by Price</option>
+              <option value="LowToHigh">Price: Low to High</option>
+              <option value="HighToLow">Price: High to Low</option>
+            </select>
+          </div>
+
+          <div className="relative md:w-40">
+            <select 
               value={isOnSale} 
               onChange={(event) => setIsOnSale(event.target.value)}
               className="block w-full px-4 py-3 border border-charcoal/20 bg-white rounded-none leading-5 font-heading text-xs font-bold uppercase tracking-wider focus:outline-none focus:border-charcoal transition-all appearance-none cursor-pointer"
@@ -190,7 +230,7 @@ export default function CatalogPage() {
       )}
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 xl:gap-8">
-        {filtered.map((jersey) => (
+        {sorted.map((jersey) => (
           <JerseyCard key={jersey.id} jersey={jersey} />
         ))}
       </div>
