@@ -53,7 +53,7 @@ export default function CatalogPage() {
       if (search) params.set('search', search);
       if (team !== 'All') params.set('team', team);
       if (club !== 'All') params.set('featured_club', club);
-      if (category !== 'All') params.set('category', category);
+      if (category !== 'All') params.set('category_type', category);
       if (version !== 'All') params.set('version', version);
       if (isOnSale !== 'All') params.set('is_on_sale', isOnSale);
 
