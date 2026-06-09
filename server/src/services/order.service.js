@@ -1,6 +1,5 @@
 const Order = require('../models/order.model');
 const Settings = require('../models/settings.model');
-const { env } = require('../config/env');
 
 const defaultWhatsAppTemplate = `DETAILS
 ORDER NO:- {{order_number}}
@@ -72,14 +71,7 @@ const generateWhatsAppMessage = (order, customer, settings) => {
     })
     .join('\n\n---\n\n') + (order.items.length > 0 ? '\n\n---\n\n' : '');
 
-  const itemsWithLinks = order.items
-    .map((item, index) => {
-      const slug = item.slug || '';
-      const imageUrl = getImageUrl(item);
-      const productUrl = slug ? `${env.frontendUrl}/product/${slug}` : '';
-      return `${index + 1}.\n\n${item.jersey_name}\n\nSize: ${item.size}\n\nQuantity: ${item.quantity}\n\nPrice: ₹${Number(item.price)}\n\nProduct:\n${productUrl || 'N/A'}\n\nImage:\n${imageUrl || 'N/A'}`;
-    })
-    .join('\n\n---\n\n') + (order.items.length > 0 ? '\n\n---\n\n' : '');
+  const itemsWithLinks = itemsWithImages;
 
   const total = `₹${Number(order.total_amount).toLocaleString('en-IN')}`;
   const customerAddress = `${customer.address_line_1}${customer.address_line_2 ? '\n' + customer.address_line_2 : ''}\n${customer.city}, ${customer.state} - ${customer.postal_code}`;

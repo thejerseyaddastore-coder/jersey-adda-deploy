@@ -97,7 +97,7 @@ DATE:- {{order_date}}`;
     postal_code: '560048',
     order_items: '- Real Madrid 24/25 Jersey (M) x 1 - Price: ₹1,500\n- Arsenal 24/25 Home Jersey (L) x 2 - Price: ₹3,000',
     order_items_with_images: `1.\n\nReal Madrid 24/25 Jersey\n\nSize: M\n\nQuantity: 1\n\nPrice: ₹1500\n\nImage:\nhttps://jerseyadda.in/images/real-madrid.jpg\n\n---\n\n2.\n\nArsenal 24/25 Home Jersey\n\nSize: L\n\nQuantity: 2\n\nPrice: ₹1500\n\nImage:\nhttps://jerseyadda.in/images/arsenal.jpg\n\n---\n`,
-    order_items_with_links: `1.\n\nReal Madrid 24/25 Jersey\n\nSize: M\n\nQuantity: 1\n\nPrice: ₹1500\n\nProduct:\nhttps://jerseyadda.in/product/real-madrid-24-25\n\nImage:\nhttps://jerseyadda.in/images/real-madrid.jpg\n\n---\n\n2.\n\nArsenal 24/25 Home Jersey\n\nSize: L\n\nQuantity: 2\n\nPrice: ₹1500\n\nProduct:\nhttps://jerseyadda.in/product/arsenal-24-25-home\n\nImage:\nhttps://jerseyadda.in/images/arsenal.jpg\n\n---\n`,
+    order_items_with_links: `1.\n\nReal Madrid 24/25 Jersey\n\nSize: M\n\nQuantity: 1\n\nPrice: ₹1500\n\nImage:\nhttps://jerseyadda.in/images/real-madrid.jpg\n\n---\n\n2.\n\nArsenal 24/25 Home Jersey\n\nSize: L\n\nQuantity: 2\n\nPrice: ₹1500\n\nImage:\nhttps://jerseyadda.in/images/arsenal.jpg\n\n---\n`,
     total_amount: '4,500',
     order_date: new Date().toLocaleDateString('en-IN')
   };
