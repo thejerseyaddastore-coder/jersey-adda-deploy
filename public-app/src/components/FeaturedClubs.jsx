@@ -1,32 +1,33 @@
 import React from 'react';
+import { optimizeCloudinaryUrl } from '../utils/image';
 import { Link } from 'react-router-dom';
 
 const clubs = [
   {
     id: 'BARCELONA',
     name: 'FC Barcelona',
-    bgImage: 'https://res.cloudinary.com/dlnf5iam6/image/upload/v1780696434/barca_zobf0w.jpg',
+    bgImage: 'https://res.cloudinary.com/dalnbaeaz/image/upload/v1780696434/barca_zobf0w.jpg',
     color: 'from-blue-950/80 to-red-900/80',
     logo: 'BARCA',
   },
   {
     id: 'REAL_MADRID',
     name: 'Real Madrid',
-    bgImage: 'https://res.cloudinary.com/dlnf5iam6/image/upload/v1780696434/madrid_s8pzsx.jpg',
+    bgImage: 'https://res.cloudinary.com/dalnbaeaz/image/upload/v1780696434/madrid_s8pzsx.jpg',
     color: 'from-gray-950/80 to-slate-900/80',
     logo: 'MADRID',
   },
   {
     id: 'MAN_UNITED',
     name: 'Manchester United',
-    bgImage: 'https://res.cloudinary.com/dlnf5iam6/image/upload/v1780696434/united_u9rups.jpg',
+    bgImage: 'https://res.cloudinary.com/dalnbaeaz/image/upload/v1780696434/united_u9rups.jpg',
     color: 'from-red-950/80 to-black/80',
     logo: 'UNITED',
   },
   {
     id: 'AC_MILAN',
     name: 'AC Milan',
-    bgImage: 'https://res.cloudinary.com/dlnf5iam6/image/upload/v1780696434/milan_mujfq4.jpg',
+    bgImage: 'https://res.cloudinary.com/dalnbaeaz/image/upload/v1780696434/milan_mujfq4.jpg',
     color: 'from-red-950/85 to-black/85',
     logo: 'MILAN',
   }
@@ -50,10 +51,12 @@ export default function FeaturedClubs() {
               to={`/jerseys?club=${encodeURIComponent(club.id)}`}
               className="group relative h-64 rounded-none overflow-hidden border border-charcoal/15 hover:border-charcoal transition-all duration-300 transform hover:-translate-y-1"
             >
-              {/* Background Image */}
-              <div 
-                className="absolute inset-0 bg-cover bg-center group-hover:scale-105 transition-transform duration-700 ease-out" 
-                style={{ backgroundImage: `url(${club.bgImage})` }}
+              {/* Background Image - refactored to img tag for native lazy loading */}
+              <img 
+                src={optimizeCloudinaryUrl(club.bgImage, 300)} 
+                alt={club.name}
+                loading="lazy"
+                className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out" 
               />
               {/* Gradient Overlay */}
               <div className={`absolute inset-0 bg-gradient-to-t ${club.color} opacity-80 group-hover:opacity-85 transition-opacity duration-300`} />

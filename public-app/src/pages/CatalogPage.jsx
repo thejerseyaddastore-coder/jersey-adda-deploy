@@ -1,9 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { listJerseys } from '../api/jerseys';
 import JerseyCard from '../components/JerseyCard';
 import { Search, Filter, ArrowLeft } from 'lucide-react';
-import { matchesClubFilter } from '../utils/clubs';
 
 export default function CatalogPage() {
   const [jerseys, setJerseys] = useState([]);
@@ -16,39 +15,48 @@ export default function CatalogPage() {
   const location = useLocation();
   const navigate = useNavigate();
   
-  // Parse query params for initial state
-  const queryParams = new URLSearchParams(location.search);
-  const initialTeam = queryParams.get('team') || 'All';
-  const initialClub = queryParams.get('club') || 'All';
-  const initialSearch = queryParams.get('search') || '';
-  const initialIsOnSale = queryParams.get('is_on_sale') || 'All';
-  const initialCategory = queryParams.get('category') || 'All';
-  const initialVersion = queryParams.get('version') || 'All';
-  const initialSort = queryParams.get('sort') || 'None';
- 
-  const [search, setSearch] = useState(initialSearch);
-  const [team, setTeam] = useState(initialTeam);
-  const [club, setClub] = useState(initialClub);
-  const [isOnSale, setIsOnSale] = useState(initialIsOnSale);
-  const [category, setCategory] = useState(initialCategory);
-  const [version, setVersion] = useState(initialVersion);
-  const [sortByPrice, setSortByPrice] = useState(initialSort);
- 
+  // URL is the single source of truth for filters
+  const queryParams = useMemo(() => new URLSearchParams(location.search), [location.search]);
+  
+  const search = queryParams.get('search') || '';
+  const team = queryParams.get('team') || 'All';
+  const club = queryParams.get('club') || 'All';
+  const isOnSale = queryParams.get('is_on_sale') || 'All';
+  const category = queryParams.get('category') || 'All';
+  const version = queryParams.get('version') || 'All';
+  const sortByPrice = queryParams.get('sort') || 'None';
+
+  // Debounced search text state
+  const [searchInput, setSearchInput] = useState(search);
+
+  // Sync search input state with URL parameter (e.g. on page back/forward or external links)
   useEffect(() => {
-    setPage(1);
-    setJerseys([]);
-    setHasMore(false);
-    setTotal(null);
-  }, [search, team, club, isOnSale, category, version, sortByPrice]);
+    setSearchInput(search);
+  }, [search]);
+
+  const filterKey = `${search}-${team}-${club}-${isOnSale}-${category}-${version}-${sortByPrice}`;
+
+  // Track previous filter key to detect filter changes and prevent double-fetching
+  const prevFilterKeyRef = React.useRef(filterKey);
 
   useEffect(() => {
     let active = true;
+
+    // Reset page to 1 on filter changes and abort current fetch to prevent double fetch
+    if (prevFilterKeyRef.current !== filterKey) {
+      prevFilterKeyRef.current = filterKey;
+      if (page !== 1) {
+        setPage(1);
+        return;
+      }
+    }
+
     async function fetchJerseys() {
       setLoading(true);
       setError('');
 
       const params = new URLSearchParams();
-      params.set('limit', '12');
+      params.set('limit', '20'); // Load 20 jerseys per page (Catalog Optimization)
       params.set('page', String(page));
       if (search) params.set('search', search);
       if (team !== 'All') params.set('team', team);
@@ -93,6 +101,7 @@ export default function CatalogPage() {
         const nextHasMore = response.data?.hasMore ?? false;
         const totalCount = response.data?.totalCount ?? 0;
 
+        // Overwrite if page 1, append if loading more
         setJerseys((current) => (page === 1 ? items : [...current, ...items]));
         setHasMore(nextHasMore);
         setTotal(totalCount);
@@ -106,37 +115,39 @@ export default function CatalogPage() {
 
     fetchJerseys();
     return () => { active = false; };
-  }, [search, team, club, isOnSale, category, version, page, sortByPrice]);
- 
-  // Sync state with URL query parameters when they change (e.g. from homepage card clicks)
+  }, [filterKey, page]);
+
+  // Update URL filter helper
+  const updateFilter = (key, value) => {
+    const nextParams = new URLSearchParams(location.search);
+    if (value === 'All' || value === 'None' || value === '') {
+      nextParams.delete(key);
+    } else {
+      nextParams.set(key, value);
+    }
+    // Reset page to 1 when filters are changed
+    nextParams.delete('page');
+    setPage(1);
+    navigate({ search: nextParams.toString() }, { replace: true });
+  };
+
+  // Debounce search query update
   useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    setSearch(params.get('search') || '');
-    setTeam(params.get('team') || 'All');
-    setClub(params.get('club') || 'All');
-    setIsOnSale(params.get('is_on_sale') || 'All');
-    setCategory(params.get('category') || 'All');
-    setVersion(params.get('version') || 'All');
-    setSortByPrice(params.get('sort') || 'None');
-  }, [location.search]);
- 
-  // Update URL when filters change
-  useEffect(() => {
-    const params = new URLSearchParams();
-    if (search) params.set('search', search);
-    if (team !== 'All') params.set('team', team);
-    if (club !== 'All') params.set('club', club);
-    if (isOnSale !== 'All') params.set('is_on_sale', isOnSale);
-    if (category !== 'All') params.set('category', category);
-    if (version !== 'All') params.set('version', version);
-    if (sortByPrice !== 'None') params.set('sort', sortByPrice);
-    
-    navigate({ search: params.toString() }, { replace: true });
-  }, [search, team, club, isOnSale, category, version, sortByPrice, navigate]);
+    const timer = setTimeout(() => {
+      if (searchInput !== search) {
+        updateFilter('search', searchInput);
+      }
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [searchInput]);
+
+  const handleClearFilters = () => {
+    setSearchInput('');
+    setPage(1);
+    navigate('/jerseys', { replace: true });
+  };
  
   const teams = ['All', ...new Set(jerseys.map((jersey) => jersey.team_name).filter(Boolean))];
- 
-  const sorted = jerseys;
  
   const loadedJerseyCount = jerseys.length;
   const headerText = loading && page === 1
@@ -172,8 +183,8 @@ export default function CatalogPage() {
               type="text"
               className="block w-full pl-9 pr-3 py-3 border border-charcoal/20 bg-cream rounded-none leading-5 placeholder-charcoal/40 focus:outline-none focus:border-charcoal transition-all text-sm font-sans"
               placeholder="Search jerseys..."
-              value={search}
-              onChange={(event) => setSearch(event.target.value)}
+              value={searchInput}
+              onChange={(event) => setSearchInput(event.target.value)}
             />
           </div>
  
@@ -181,7 +192,7 @@ export default function CatalogPage() {
           <div className="relative md:w-60">
             <select 
               value={category} 
-              onChange={(event) => setCategory(event.target.value)}
+              onChange={(event) => updateFilter('category', event.target.value)}
               className="block w-full px-4 py-3 border border-charcoal/25 bg-white rounded-none leading-5 font-heading text-xs font-bold uppercase tracking-wider focus:outline-none focus:border-charcoal transition-all appearance-none cursor-pointer"
             >
               <option value="All">All Categories</option>
@@ -198,7 +209,7 @@ export default function CatalogPage() {
             </div>
             <select 
               value={team} 
-              onChange={(event) => setTeam(event.target.value)}
+              onChange={(event) => updateFilter('team', event.target.value)}
               className="block w-full pl-9 pr-8 py-3 border border-charcoal/20 bg-white rounded-none leading-5 font-heading text-xs font-bold uppercase tracking-wider focus:outline-none focus:border-charcoal transition-all appearance-none cursor-pointer"
             >
               {teams.map((option) => (
@@ -212,7 +223,7 @@ export default function CatalogPage() {
           <div className="relative md:w-40">
             <select 
               value={version} 
-              onChange={(event) => setVersion(event.target.value)}
+              onChange={(event) => updateFilter('version', event.target.value)}
               className="block w-full px-4 py-3 border border-charcoal/20 bg-white rounded-none leading-5 font-heading text-xs font-bold uppercase tracking-wider focus:outline-none focus:border-charcoal transition-all appearance-none cursor-pointer"
             >
               <option value="All">All Versions</option>
@@ -224,7 +235,7 @@ export default function CatalogPage() {
           <div className="relative md:w-40">
             <select 
               value={sortByPrice} 
-              onChange={(event) => setSortByPrice(event.target.value)}
+              onChange={(event) => updateFilter('sort', event.target.value)}
               className="block w-full px-4 py-3 border border-charcoal/20 bg-white rounded-none leading-5 font-heading text-xs font-bold uppercase tracking-wider focus:outline-none focus:border-charcoal transition-all appearance-none cursor-pointer"
             >
               <option value="None">Sort by Price</option>
@@ -236,7 +247,7 @@ export default function CatalogPage() {
           <div className="relative md:w-40">
             <select 
               value={isOnSale} 
-              onChange={(event) => setIsOnSale(event.target.value)}
+              onChange={(event) => updateFilter('is_on_sale', event.target.value)}
               className="block w-full px-4 py-3 border border-charcoal/20 bg-white rounded-none leading-5 font-heading text-xs font-bold uppercase tracking-wider focus:outline-none focus:border-charcoal transition-all appearance-none cursor-pointer"
             >
               <option value="All">On Sale: All</option>
@@ -260,18 +271,18 @@ export default function CatalogPage() {
  
       {error && <p className="bg-red-50 text-red-600 p-4 rounded-none border border-red-150 font-sans text-sm">{error}</p>}
  
-      {!loading && !error && sorted.length === 0 && (
+      {!loading && !error && jerseys.length === 0 && (
         <div className="text-center py-20 bg-white rounded-none border border-charcoal/10 shadow-none">
           <h3 className="font-heading text-xl font-bold uppercase tracking-wider text-charcoal mb-2">No matches found</h3>
           <p className="text-sm text-charcoal/50 mb-6 font-sans">Try adjusting your search or filters.</p>
-          <button onClick={() => { setSearch(''); setTeam('All'); setClub('All'); setIsOnSale('All'); setCategory('All'); }} className="btn-primary">
+          <button onClick={handleClearFilters} className="btn-primary">
             Clear Filters
           </button>
         </div>
       )}
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 xl:gap-8">
-        {sorted.map((jersey) => (
+      <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 xl:gap-8 transition-opacity duration-300 ${loading && page === 1 ? 'opacity-50 pointer-events-none' : 'opacity-100'}`}>
+        {jerseys.map((jersey) => (
           <JerseyCard key={jersey.id} jersey={jersey} />
         ))}
       </div>

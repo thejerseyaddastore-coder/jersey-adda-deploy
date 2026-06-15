@@ -21,7 +21,7 @@ export default function HomePage() {
       setLoading(true);
       setError('');
       try {
-        const response = await listJerseys();
+        const response = await listJerseys('?limit=8');
         if (!active) return;
         const items = Array.isArray(response.data?.items) ? response.data.items : [];
         

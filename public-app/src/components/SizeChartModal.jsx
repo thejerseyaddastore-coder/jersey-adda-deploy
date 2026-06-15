@@ -1,6 +1,7 @@
 import { X } from 'lucide-react';
+import { optimizeCloudinaryUrl } from '../utils/image';
 
-const sizeChartUrl = 'https://res.cloudinary.com/dlnf5iam6/image/upload/v1780725540/WhatsApp_Image_2026-06-06_at_11.14.52_kafncm.jpg';
+const sizeChartUrl = 'https://res.cloudinary.com/dalnbaeaz/image/upload/v1780725540/WhatsApp_Image_2026-06-06_at_11.14.52_kafncm.jpg';
 
 export default function SizeChartModal({ open, onClose }) {
   if (!open) {
@@ -25,8 +26,9 @@ export default function SizeChartModal({ open, onClose }) {
 
         <div className="bg-white p-4 text-gray-900 sm:p-6">
           <img
-            src={sizeChartUrl}
+            src={optimizeCloudinaryUrl(sizeChartUrl, 800)}
             alt="Jersey Adda size chart"
+            loading="lazy"
             className="mx-auto w-full max-w-3xl rounded-2xl border border-gray-200 object-contain"
           />
         </div>

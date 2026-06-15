@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { formatCurrency } from '../utils/currency';
-import { getPrimaryJerseyImage } from '../utils/image';
+import { getPrimaryJerseyImage, optimizeCloudinaryUrl } from '../utils/image';
 import BrandLogo from './BrandLogo';
 
 const CartDrawer = () => {
@@ -38,7 +38,7 @@ const CartDrawer = () => {
           ) : (
             cart.map((item) => (
               <div key={`${item.id}-${item.size}`} className="flex items-center pb-4 border-b border-charcoal/5 last:border-b-0 last:pb-0">
-                <img src={getPrimaryJerseyImage(item)} alt={item.name} className="w-16 h-16 object-cover rounded-none border border-charcoal/10 bg-cream mr-4" />
+                <img src={optimizeCloudinaryUrl(getPrimaryJerseyImage(item), 150)} alt={item.name} className="w-16 h-16 object-cover rounded-none border border-charcoal/10 bg-cream mr-4" />
                 <div className="flex-grow min-w-0">
                   <h3 className="font-heading text-sm font-bold uppercase tracking-wider text-charcoal truncate">{item.name}</h3>
                   <p className="font-heading text-[10px] uppercase tracking-widest text-charcoal/50 font-bold mt-0.5">Size: <span className="text-charcoal">{item.size}</span></p>

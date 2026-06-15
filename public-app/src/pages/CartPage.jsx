@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { formatCurrency } from '../utils/currency';
-import { getPrimaryJerseyImage } from '../utils/image';
+import { getPrimaryJerseyImage, optimizeCloudinaryUrl } from '../utils/image';
 import { Trash2, ShoppingCart, ArrowLeft } from 'lucide-react';
 
 const CartPage = () => {
@@ -38,7 +38,7 @@ const CartPage = () => {
                 {/* Product details header */}
                 <div className="flex items-center gap-4 sm:gap-6 flex-grow">
                   <img 
-                    src={getPrimaryJerseyImage(item)} 
+                    src={optimizeCloudinaryUrl(getPrimaryJerseyImage(item), 150)} 
                     alt={item.name} 
                     className="w-20 h-20 sm:w-24 sm:h-24 object-cover rounded-none border border-charcoal/10 bg-cream shrink-0" 
                   />

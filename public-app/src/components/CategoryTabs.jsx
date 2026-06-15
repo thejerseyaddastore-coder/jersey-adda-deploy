@@ -1,28 +1,29 @@
 import React from 'react';
+import { optimizeCloudinaryUrl } from '../utils/image';
 
 const tabs = [
   {
     id: 'INTERNATIONAL',
     label: 'International Jerseys',
-    bgImage: 'https://res.cloudinary.com/dlnf5iam6/image/upload/v1780699658/national_nsvlmb.jpg',
+    bgImage: 'https://res.cloudinary.com/dalnbaeaz/image/upload/v1780699658/national_nsvlmb.jpg',
     color: 'from-blue-950/80 to-sky-900/80',
   },
   {
     id: 'CLUB',
     label: 'Club Jerseys',
-    bgImage: 'https://res.cloudinary.com/dlnf5iam6/image/upload/v1780699661/club_i7qrny.avif',
+    bgImage: 'https://res.cloudinary.com/dalnbaeaz/image/upload/v1780699661/club_i7qrny.avif',
     color: 'from-emerald-950/80 to-teal-900/80',
   },
   {
     id: 'SHORTS',
     label: 'Jerseys with Shorts',
-    bgImage: 'https://res.cloudinary.com/dlnf5iam6/image/upload/v1780699658/with_shorts_pto6oq.jpg',
+    bgImage: 'https://res.cloudinary.com/dalnbaeaz/image/upload/v1780699658/with_shorts_pto6oq.jpg',
     color: 'from-amber-950/80 to-orange-900/80',
   },
   {
     id: 'OTHER',
     label: 'Other Sports & Jerseys on Sale',
-    bgImage: 'https://res.cloudinary.com/dlnf5iam6/image/upload/v1780860773/abhay-siby-mathew-bGMjzkeAGkQ-unsplash_ooqy03.jpg',
+    bgImage: 'https://res.cloudinary.com/dalnbaeaz/image/upload/v1780860773/abhay-siby-mathew-bGMjzkeAGkQ-unsplash_ooqy03.jpg',
     color: 'from-purple-950/80 to-indigo-900/80',
   }
 ];
@@ -52,10 +53,12 @@ export default function CategoryTabs({ activeCategory, setActiveCategory }) {
                     : 'border-charcoal/15 hover:border-charcoal/40'
                 }`}
               >
-                {/* Background Image */}
-                <div 
-                  className="absolute inset-0 bg-cover bg-center group-hover:scale-105 transition-transform duration-700 ease-out" 
-                  style={{ backgroundImage: `url(${tab.bgImage})` }}
+                {/* Background Image - refactored to img tag for native lazy loading */}
+                <img 
+                  src={optimizeCloudinaryUrl(tab.bgImage, 300)} 
+                  alt={tab.label}
+                  loading="lazy"
+                  className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out" 
                 />
                 
                 {/* Colored Overlay */}

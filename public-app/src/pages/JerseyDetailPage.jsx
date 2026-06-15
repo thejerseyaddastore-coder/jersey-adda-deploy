@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { getJerseyBySlug } from '../api/jerseys';
-import { getJerseyImages } from '../utils/image';
+import { getJerseyImages, optimizeCloudinaryUrl } from '../utils/image';
 import { formatCurrency } from '../utils/currency';
 import { normalizeSizes, defaultJerseySizes } from '../utils/sizes';
 import { useCart } from '../context/CartContext';
@@ -21,7 +21,7 @@ export default function JerseyDetailPage() {
   const { addToCart } = useCart();
   const [whatsappNumber, setWhatsappNumber] = useState("+1234567890"); // Default fallback
 
-  const images = getJerseyImages(jersey);
+  const images = useMemo(() => getJerseyImages(jersey), [jersey]);
   const sizes = useMemo(() => {
     const normalized = normalizeSizes(jersey?.available_sizes);
     return normalized.length > 0 ? normalized : defaultJerseySizes;
@@ -149,7 +149,7 @@ export default function JerseyDetailPage() {
                     activeImage === index ? 'border-charcoal ring-1 ring-charcoal' : 'border-charcoal/10 hover:border-charcoal/40'
                   }`}
                 >
-                  <img src={image} alt={`Thumbnail ${index + 1}`} className="object-cover w-full h-full" />
+                  <img src={optimizeCloudinaryUrl(image, 150)} alt={`Thumbnail ${index + 1}`} loading="lazy" className="object-cover w-full h-full" />
                 </button>
               ))}
             </div>
@@ -157,8 +157,9 @@ export default function JerseyDetailPage() {
             {/* Main Image */}
             <div className="relative flex-grow bg-white rounded-none overflow-hidden aspect-[4/5] border border-charcoal/10 group">
               <img 
-                src={images[activeImage]} 
+                src={optimizeCloudinaryUrl(images[activeImage], 800)} 
                 alt={jersey.name} 
+                loading="eager"
                 className="w-full h-full object-cover object-center transition-all duration-500 ease-in-out"
               />
               

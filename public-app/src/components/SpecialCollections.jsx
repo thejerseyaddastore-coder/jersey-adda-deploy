@@ -1,4 +1,5 @@
 import React from 'react';
+import { optimizeCloudinaryUrl } from '../utils/image';
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 
@@ -7,7 +8,7 @@ const collections = [
     id: 'player-version',
     title: 'Player Version',
     subtitle: 'Professional, athletic-fit jerseys worn on the pitch.',
-    image: 'https://res.cloudinary.com/dlnf5iam6/image/upload/v1781001006/11_firfjm.jpg',
+    image: 'https://res.cloudinary.com/dalnbaeaz/image/upload/v1781001006/11_firfjm.jpg',
     path: '/jerseys?version=PLAYER',
     tag: 'Athletic Fit',
     color: 'from-charcoal/95 via-charcoal/65 to-transparent'
@@ -16,7 +17,7 @@ const collections = [
     id: 'stadium-version',
     title: 'Stadium Version',
     subtitle: 'Comfortable fan-fit jerseys designed for everyday wear.',
-    image: 'https://res.cloudinary.com/dlnf5iam6/image/upload/v1781001004/22_e8hjqj.jpg',
+    image: 'https://res.cloudinary.com/dalnbaeaz/image/upload/v1781001004/22_e8hjqj.jpg',
     path: '/jerseys?version=FAN',
     tag: 'Fan Fit',
     color: 'from-charcoal/95 via-charcoal/65 to-transparent'
@@ -25,7 +26,7 @@ const collections = [
     id: 'clearance-sale',
     title: 'Clearance Sale',
     subtitle: 'Grab your favorites at unbeatable discounted prices.',
-    image: 'https://res.cloudinary.com/dlnf5iam6/image/upload/v1781001006/33_yufkrw.jpg',
+    image: 'https://res.cloudinary.com/dalnbaeaz/image/upload/v1781001006/33_yufkrw.jpg',
     path: '/jerseys?is_on_sale=Yes',
     tag: 'Up to 50% Off',
     color: 'from-charcoal/95 via-charcoal/65 to-transparent'
@@ -52,10 +53,12 @@ export default function SpecialCollections() {
               to={col.path}
               className="group relative h-96 block overflow-hidden border border-charcoal/10 transition-all duration-300 transform hover:-translate-y-1 hover:border-charcoal shadow-sm hover:shadow-lg"
             >
-              {/* Image */}
-              <div
-                className="absolute inset-0 bg-cover bg-center transition-transform duration-700 ease-out group-hover:scale-105"
-                style={{ backgroundImage: `url(${col.image})` }}
+              {/* Background Image - refactored to img tag for native lazy loading */}
+              <img 
+                src={optimizeCloudinaryUrl(col.image, 400)} 
+                alt={col.title}
+                loading="lazy"
+                className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105" 
               />
 
               {/* Gradient Overlay */}

@@ -2,24 +2,28 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { Eye, ShoppingBag, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useCart } from '../context/CartContext';
-import { getJerseyImages } from '../utils/image';
+import { getJerseyImages, optimizeCloudinaryUrl } from '../utils/image';
 import { formatCurrency } from '../utils/currency';
 import toast from 'react-hot-toast';
 
-export default function JerseyCard({ jersey }) {
+const JerseyCard = React.memo(function JerseyCard({ jersey }) {
   const { addToCart } = useCart();
   const jerseySlug = jersey.slug || jersey.id;
 
   const images = useMemo(() => getJerseyImages(jersey), [jersey]);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [isHovered, setIsHovered] = useState(false);
 
   useEffect(() => {
-    if (images.length <= 1) return;
+    if (!isHovered || images.length <= 1) {
+      setCurrentImageIndex(0);
+      return;
+    }
     const interval = setInterval(() => {
       setCurrentImageIndex((prev) => (prev + 1) % images.length);
     }, 3000);
     return () => clearInterval(interval);
-  }, [images.length]);
+  }, [isHovered, images.length]);
 
   const handleAddToCart = (size) => {
     addToCart(jersey, size);
@@ -27,19 +31,28 @@ export default function JerseyCard({ jersey }) {
   };
 
   return (
-    <article className="group bg-white rounded-none border border-charcoal/10 hover:border-charcoal transition-all duration-300 overflow-hidden flex flex-col h-full relative">
+    <article 
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      className="group bg-white rounded-none border border-charcoal/10 hover:border-charcoal transition-all duration-300 overflow-hidden flex flex-col h-full relative"
+    >
       <Link to={`/jerseys/${jerseySlug}`} className="block">
         <div className="relative overflow-hidden h-72 bg-cream">
-          {images.map((imgUrl, index) => (
-            <img
-              key={imgUrl}
-              src={imgUrl}
-              alt={jersey.name}
-              className={`absolute inset-0 w-full h-full object-cover transform group-hover:scale-105 transition-all duration-700 ease-in-out ${
-                index === currentImageIndex ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'
-              }`}
-            />
-          ))}
+          {images.map((imgUrl, index) => {
+            const shouldRender = index === 0 || isHovered;
+            if (!shouldRender) return null;
+            return (
+              <img
+                key={imgUrl}
+                src={optimizeCloudinaryUrl(imgUrl, 300)}
+                alt={jersey.name}
+                loading="lazy"
+                className={`absolute inset-0 w-full h-full object-cover transform group-hover:scale-105 transition-all duration-700 ease-in-out ${
+                  index === currentImageIndex ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'
+                }`}
+              />
+            );
+          })}
           
           {images.length > 1 && (
             <>
@@ -140,4 +153,6 @@ export default function JerseyCard({ jersey }) {
       </div>
     </article>
   );
-}
+});
+
+export default JerseyCard;
