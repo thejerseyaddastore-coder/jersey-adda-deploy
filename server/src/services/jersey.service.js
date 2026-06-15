@@ -42,9 +42,9 @@ function normalizeFiles(files) {
 async function listJerseys(query) {
   const sortBy = query.sort_by || 'created_at';
   const sortOrder = query.sort_order || 'desc';
-  const page = query.page || 1;
-  const limit = query.limit || 12;
-  const offset = query.offset;
+  const page = parseInt(query.page, 10) || 1;
+  const limit = parseInt(query.limit, 10) || 12;
+  const offset = query.offset !== undefined && query.offset !== null ? parseInt(query.offset, 10) : undefined;
 
   const filters = {
     search: normalizeOptionalString(query.search),
